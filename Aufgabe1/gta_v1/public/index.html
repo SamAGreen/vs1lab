@@ -1,62 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>GeoTagApp</title>
-		<link rel='stylesheet' href='./stylesheets/style.css'/>
-	</head>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>GeoTagApp</title>
+	<link rel='stylesheet' href='./stylesheets/style.css'/>
+</head>
 
-	<body>
+<body>
 
-		<header>
-			<img src="./images/location.png" width="100"
-					alt="an image of a map and location">
-			<h1>GeoTagApp</h1>
-			<nav>
-				<a href="#">About</a> | <a href="#">Help</a> | <a
-					href="/">Home</a>
-			</nav>
-		</header>
+<header>
+	<img src="./images/location.png" width="100"
+		 alt="an image of a map and location" id="head_img">
+	<h1 id="head_title">GeoTagApp</h1>
+	<nav id="head_nav">
+		<a href="#">About</a> | <a href="#">Help</a> | <a
+			href="/">Home</a>
+	</nav>
+</header>
 
-		<main>
+<main class="container">
 
-			<section class="tagging">
-				<h2>Tagging</h2>
+	<section class="tagging">
+		<h2>Tagging</h2>
 
-				<!-- ############### Aufgabe1a Form1 Start -->
-				<form id="tag-form" action="/tagging" method="post"></form>
-				<!-- ############### Aufgabe1a Form1 Ende -->
+		<!-- ############### Aufgabe1a Form1 Start -->
+		<form id="tag-form" action="/tagging" method="post">
+			<fieldset>
+				<legend>Enter new GeoTag</legend>
+				<label for = "tag_lat">latitude</label>
+				<input type="number" step="any" id="tag_lat" name="latitude" size="10" placeholder="4,56"  required>
+				<label for = "tag_long">longitude</label>
+				<input type="number" step="any" id="tag_long" name="longitude" size="10" placeholder="4,56" required>
+				<label for = "tag_name">name</label>
+				<input type="text"  id="tag_name" name="name" size="10" placeholder="some name" maxlength="10" required>
+				<label for = "tag_hashtag">hashtag</label>
+				<input type="text" id="tag_hashtag" name="hashtag" size="10" pattern="[#]{1}[A-Za-z]{1,10}" placeholder="# + max. 10 letters" required>
+				<input type="submit" id="submit" value="Submit">
+			</fieldset>
+		</form>
+		<!-- ############### Aufgabe1a Form1 Ende -->
 
-			</section>
+	</section>
 
-			<section class="discovery">
-				<h2>Discovery</h2>
+	<section class="discovery">
+		<h2>Discovery</h2>
 
-				<!-- ############### Aufgabe1a Form2 Start -->
-				<form id="filter-form" action="/discovery" method="post"></form>
-				<!-- ############### Aufgabe1a Form2 Ende -->
+		<!-- ############### Aufgabe1a Form2 Start -->
+		<form id="filter-form" action="/discovery" method="post" >
+			<fieldset>
+				<legend>Filter by Searchterm</legend>
+				<label for = "searchterm"></label>
+				<input type="text"  id="searchterm" name="searchterm" size="10" placeholder="search term" required>
+				<input type="submit" id="apply" value="Apply">
+			</fieldset>
+		</form>
 
-				<div class="taglist">
-					<ul id="results">
-						<li>Castle (49.01379, 8.404435) #sight</li>
-						<li>IWI (49.01379, 8.390071) #edu</li>
-					</ul>
-				</div>
+		<!-- ############### Aufgabe1a Form2 Ende -->
+		<section class = "indiscovery">
+			<div class="taglist">
+				<ul id="results">
+					<li>Castle (49.01379, 8.404435) #sight</li>
+					<li>IWI (49.01379, 8.390071) #edu</li>
+				</ul>
+			</div>
 
-				<div class="tagmap">
-					<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
-					<div class="caption">Result map</div>
-				</div>
+			<div class="tagmap">
+				<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
+				<div class="caption">Result map</div>
+			</div>
+		</section>
+	</section>
 
-			</section>
+</main>
 
-		</main>
+<footer>
+	<span>2017 by LKIT</span>
+</footer>
 
-		<footer>
-			<span>2017 by LKIT</span>
-		</footer>
-
-	</body>
+</body>
 </html>
