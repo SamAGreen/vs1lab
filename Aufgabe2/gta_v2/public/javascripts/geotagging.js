@@ -114,13 +114,23 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     };
 
     return { // Start öffentlicher Teil des Moduls ...
-
         // Public Member
 
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
         updateLocation: function() {
             // TODO Hier Inhalt der Funktion "update" ergänzen
+            tryLocate(function(position){
+                    var lat_vis = document.getElementById("tag_lat");
+                    var lat_invis = document.getElementById("hi_lat");
+                    var long_vis = document.getElementById("tag_long");
+                    var long_invis = document.getElementById("hi_long");
+                    lat_vis.value = lat_invis.value = getLatitude(position);
+                    long_vis.value = long_invis.value = getLongitude(position);
+                },
+                function (onerror){
+                alert(onerror);
+                });
         }
 
     }; // ... Ende öffentlicher Teil
@@ -133,5 +143,9 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  */
 $(function() {
     alert("Please change the script 'geotagging.js'");
+    gtaLocator.updateLocation();
+    /*
+
+    */
     // TODO Hier den Aufruf für updateLocation einfügen
 });
