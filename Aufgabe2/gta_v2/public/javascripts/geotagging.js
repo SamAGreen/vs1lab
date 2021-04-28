@@ -129,9 +129,8 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     var long = getLongitude(position);
                     lat_vis.value = lat_invis.value = lat;
                     long_vis.value = long_invis.value = long;
-                   maploc =  getLocationMapSrc(lat,long,undefined,13);
-                    var map = document.getElementById("result-img");
-                    map.setAttribute("src",maploc);
+                    map =  getLocationMapSrc(lat,long,undefined,13);
+                    document.getElementById("result-img").setAttribute("src",map);
                 },
                 function (onerror){
                 alert(onerror);
