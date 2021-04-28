@@ -82,7 +82,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     };
 
     // Hier API Key eintragen
-    var apiKey = "YOUR_API_KEY_HERE";
+    var apiKey = "zwmh14qk7RwnybFWnzX5BUN53cAvtKue";
 
     /**
      * Funktion erzeugt eine URL, die auf die Karte verweist.
@@ -125,8 +125,13 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     var lat_invis = document.getElementById("hi_lat");
                     var long_vis = document.getElementById("tag_long");
                     var long_invis = document.getElementById("hi_long");
-                    lat_vis.value = lat_invis.value = getLatitude(position);
-                    long_vis.value = long_invis.value = getLongitude(position);
+                    var lat= getLatitude(position);
+                    var long = getLongitude(position);
+                    lat_vis.value = lat_invis.value = lat;
+                    long_vis.value = long_invis.value = long;
+                   maploc =  getLocationMapSrc(lat,long,undefined,13);
+                    var map = document.getElementById("result-img");
+                    map.setAttribute("src",maploc);
                 },
                 function (onerror){
                 alert(onerror);
@@ -142,7 +147,6 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * des Skripts.
  */
 $(function() {
-    alert("Please change the script 'geotagging.js'");
     gtaLocator.updateLocation();
     /*
 
