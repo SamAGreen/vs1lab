@@ -82,7 +82,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     };
 
     // Hier API Key eintragen
-    var apiKey = "YOUR_API_KEY_HERE";
+    var apiKey = "zwmh14qk7RwnybFWnzX5BUN53cAvtKue";
 
     /**
      * Funktion erzeugt eine URL, die auf die Karte verweist.
@@ -114,13 +114,27 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     };
 
     return { // Start öffentlicher Teil des Moduls ...
-
         // Public Member
 
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
         updateLocation: function() {
             // TODO Hier Inhalt der Funktion "update" ergänzen
+            tryLocate(function(position){
+                    var lat_vis = document.getElementById("tag_lat");
+                    var lat_invis = document.getElementById("hi_lat");
+                    var long_vis = document.getElementById("tag_long");
+                    var long_invis = document.getElementById("hi_long");
+                    var lat= getLatitude(position);
+                    var long = getLongitude(position);
+                    lat_vis.value = lat_invis.value = lat;
+                    long_vis.value = long_invis.value = long;
+                    map =  getLocationMapSrc(lat,long,undefined,13);
+                    document.getElementById("result-img").setAttribute("src",map);
+                },
+                function (onerror){
+                alert(onerror);
+                });
         }
 
     }; // ... Ende öffentlicher Teil
@@ -132,6 +146,9 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * des Skripts.
  */
 $(function() {
-    alert("Please change the script 'geotagging.js'");
+    gtaLocator.updateLocation();
+    /*
+
+    */
     // TODO Hier den Aufruf für updateLocation einfügen
 });
