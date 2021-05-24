@@ -35,6 +35,14 @@ app.set('view engine', 'ejs');
  * Konstruktor für GeoTag Objekte.
  * GeoTag Objekte sollen min. alle Felder des 'tag-form' Formulars aufnehmen.
  */
+class GeoTag {
+    constructor(lat,long,name,hashtag) {
+        this.lat = lat;
+        this.long = long;
+        this.name = name;
+        this.hashtag = hashtag;
+    }
+}
 
 // TODO: CODE ERGÄNZEN
 
