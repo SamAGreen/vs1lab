@@ -29,7 +29,7 @@ app.set('view engine', 'ejs');
  * Teste das Ergebnis im Browser unter 'http://localhost:3000/'.
  */
 
-// TODO: CODE ERGÄNZEN
+app.use(express.static(__dirname + "/public/"));
 
 /**
  * Konstruktor für GeoTag Objekte.
@@ -54,8 +54,38 @@ class GeoTag {
  * - Funktion zum hinzufügen eines Geo Tags.
  * - Funktion zum Löschen eines Geo Tags.
  */
-
-// TODO: CODE ERGÄNZEN
+var taglist = [];
+function findByCoordinate(long, lat){
+    var temptag = [];
+    taglist.forEach()(function (elem){
+        var difflong = elem.long - long;
+        difflong = difflong>0 ? difflong : -difflong;
+        var difflat = elem.lat - lat;
+        difflat = difflat>0 ? difflat : -difflat;
+        if(difflong <= 0.01 && difflat <= 0.01)
+            temptag.push(elem);
+    });
+    return temptag;
+}
+function findByName(name){
+    var temptag = [];
+    taglist.forEach(function (elem){
+        if(elem.hashtag.equals(name))
+            temptag.push(elem);
+        else if(elem.name.equals(name))
+            temptag.push(elem);
+    });
+    return temptag;
+}
+function addTag(tag){
+    taglist.push(tag);
+}
+function deleteTag(tag){
+    var index = taglist.findIndex(tag);
+    if(index >= 0){
+        taglist.splice(index,1);
+    }
+}
 
 /**
  * Route mit Pfad '/' für HTTP 'GET' Requests.
