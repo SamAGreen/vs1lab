@@ -94,12 +94,10 @@ function deleteTag(tag){
  */
 
 app.get('/', function(req, res) {
-    const str= JSON.stringify(taglist);
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        taglist: [],
-        list: str
+        taglist: []
     });
 });
 
@@ -120,13 +118,10 @@ app.get('/', function(req, res) {
 app.post('/tagging',function(req,res){
     var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
     addTag(gtag);
-    const str = encodeURI(JSON.stringify(taglist));
-    console.log(decodeURI(str));
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
         taglist : taglist,
-        list: str
 
     })
 });
@@ -147,12 +142,10 @@ app.post('/discovery',function (req,res){
     var templist = findByCoordinate(req.body.longitude,req.body.latitude);
     if(req.body.searchterm !== "")
         templist = findByName(templist,req.body.searchterm);
-    const str = JSON.stringify(templist);
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
         taglist : templist,
-        list: str
     })
 
 });

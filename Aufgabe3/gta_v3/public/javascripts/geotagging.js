@@ -138,11 +138,11 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         alert(onerror);
                     });
             }else{
-                var str = document.getElementById("result-img").dataset;
-                console.log(JSON.parse(decodeURI(str)));
+                var str = document.getElementById("result-img").dataset.tags;
+                console.log(str);
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
-                   undefined,
+                   JSON.parse(str),
                     13);
                 document.getElementById("result-img").setAttribute("src",map);
 
