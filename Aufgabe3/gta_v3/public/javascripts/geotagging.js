@@ -139,7 +139,8 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
             }else{
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
-                    undefined,13);
+                    JSON.parse(document.getElementById("result-img").dataset.tag),
+                    13);
                 document.getElementById("result-img").setAttribute("src",map);
             }
         }
