@@ -120,34 +120,27 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 
         updateLocation: function() {
             // TODO Hier Inhalt der Funktion "update" ergänzen
-            if(document.getElementById("tag_lat").value !== undefined){
-            tryLocate(function(position){
-                /*
-                 *    var lat= document.getElementById("tag_lat").value
-                 *      = document.getElementById("hi_lat").value = getLatitude(position);
-                 *   var long = document.getElementById("tag_long").value
-                 *      = document.getElementById("hi_long").value = getLongitude(position);
-                 */
-                    var lat_vis = document.getElementById("tag_lat");
-                    var lat_invis = document.getElementById("hi_lat");
-                    var long_vis = document.getElementById("tag_long");
-                    var long_invis = document.getElementById("hi_long");
-                    var lat= getLatitude(position);
-                    var long = getLongitude(position);
-                    lat_vis.value = lat_invis.value = lat;
-                    long_vis.value = long_invis.value = long;
-                    const list = document.getElementById("result-img");
-                    map =  getLocationMapSrc(lat,long,JSON.parse(list.dataset.tags),13);
-                    document.getElementById("result-img").setAttribute("src",map);
-                },
-                function (onerror){
-                alert(onerror);
-                });
+            if(document.getElementById("tag_lat").value == ""){
+                tryLocate(function(position){
+                        var lat_vis = document.getElementById("tag_lat");
+                        var lat_invis = document.getElementById("hi_lat");
+                        var long_vis = document.getElementById("tag_long");
+                        var long_invis = document.getElementById("hi_long");
+                        var lat= getLatitude(position);
+                        var long = getLongitude(position);
+                        lat_vis.value = lat_invis.value = lat;
+                        long_vis.value = long_invis.value = long;
+                        map =  getLocationMapSrc(lat,long,undefined,13);
+                        document.getElementById("result-img").setAttribute("src",map);
+                    },
+                    function (onerror){
+                        alert(onerror);
+                    });
             }else{
-                const list = document.getElementById("result-img");
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
-                    JSON.parse(list.dataset.tags),13);
+                    undefined,13);
+                document.getElementById("result-img").setAttribute("src",map);
             }
         }
 
@@ -162,7 +155,6 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 $(function() {
     gtaLocator.updateLocation();
     /*
-
     */
     // TODO Hier den Aufruf für updateLocation einfügen
 });
