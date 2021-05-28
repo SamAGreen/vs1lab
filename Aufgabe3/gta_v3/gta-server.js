@@ -37,8 +37,8 @@ app.use(express.static(__dirname + "/public/"));
  */
 class GeoTag {
     constructor(lat,long,name,hashtag) {
-        this.lat = lat;
-        this.long = long;
+        this.latitude = lat;
+        this.longitude = long;
         this.name = name;
         this.hashtag = hashtag;
     }
@@ -58,9 +58,9 @@ var taglist = [];
 function findByCoordinate(long, lat){
     var temptag = [];
     taglist.forEach()(function (elem){
-        var difflong = elem.long - long;
+        var difflong = elem.longitude - long;
         difflong = difflong>0 ? difflong : -difflong;
-        var difflat = elem.lat - lat;
+        var difflat = elem.latitude - lat;
         difflat = difflat>0 ? difflat : -difflat;
         if(difflong <= 0.01 && difflat <= 0.01)
             temptag.push(elem);
@@ -116,7 +116,14 @@ app.get('/', function(req, res) {
  */
 
 // TODO: CODE ERGÄNZEN START
-
+app.post('/tagging',function(req,res){
+    var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
+    addTag(gtag);
+    console.log(taglist);
+    res.render('gta',{
+        taglist : taglist
+    })
+});
 /**
  * Route mit Pfad '/discovery' für HTTP 'POST' Requests.
  * (http://expressjs.com/de/4x/api.html#app.post.method)
@@ -130,7 +137,9 @@ app.get('/', function(req, res) {
  */
 
 // TODO: CODE ERGÄNZEN
+app.post('/discovery',function (req,res){
 
+});
 /**
  * Setze Port und speichere in Express.
  */
