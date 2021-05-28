@@ -132,15 +132,20 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         long_vis.value = long_invis.value = long;
                         map =  getLocationMapSrc(lat,long,undefined,13);
                         document.getElementById("result-img").setAttribute("src",map);
+                        console.log(document.getElementById("result-img").dataset);
                     },
                     function (onerror){
                         alert(onerror);
                     });
             }else{
+                var str = document.getElementById("result-img").dataset;
+                console.log(JSON.parse(decodeURI(str)));
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
-                    undefined,13);
+                   undefined,
+                    13);
                 document.getElementById("result-img").setAttribute("src",map);
+
             }
         }
 
