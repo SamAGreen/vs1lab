@@ -44,8 +44,6 @@ class GeoTag {
     }
 }
 
-// TODO: CODE ERGÄNZEN
-
 /**
  * Modul für 'In-Memory'-Speicherung von GeoTags mit folgenden Komponenten:
  * - Array als Speicher für Geo Tags.
@@ -99,7 +97,8 @@ app.get('/', function(req, res) {
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        taglist: []
+        taglist: [],
+        taglist_json: JSON.stringify(taglist)
     });
 });
 
@@ -123,7 +122,8 @@ app.post('/tagging',function(req,res){
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
-        taglist : taglist
+        taglist : taglist,
+        taglist_json : JSON.stringify(taglist)
     })
 });
 /**
@@ -146,7 +146,8 @@ app.post('/discovery',function (req,res){
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
-        taglist : templist
+        taglist : templist,
+        taglist_json : JSON.stringify(templist)
     })
 
 });

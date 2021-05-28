@@ -136,16 +136,18 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     var long = getLongitude(position);
                     lat_vis.value = lat_invis.value = lat;
                     long_vis.value = long_invis.value = long;
-                    map =  getLocationMapSrc(lat,long,undefined,13);
+                    const list = document.getElementById("result-img");
+                    map =  getLocationMapSrc(lat,long,JSON.parse(list.dataset.tags),13);
                     document.getElementById("result-img").setAttribute("src",map);
                 },
                 function (onerror){
                 alert(onerror);
                 });
             }else{
+                const list = document.getElementById("result-img");
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
-                    undefined,13);
+                    JSON.parse(list.dataset.tags),13);
             }
         }
 
