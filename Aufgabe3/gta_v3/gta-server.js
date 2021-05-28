@@ -97,6 +97,8 @@ function deleteTag(tag){
 
 app.get('/', function(req, res) {
     res.render('gta', {
+        lat: undefined,
+        long: undefined,
         taglist: []
     });
 });
@@ -119,6 +121,8 @@ app.post('/tagging',function(req,res){
     var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
     addTag(gtag);
     res.render('gta',{
+        lat: req.body.latitude,
+        long: req.body.longitude,
         taglist : taglist
     })
 });
@@ -140,6 +144,8 @@ app.post('/discovery',function (req,res){
     if(req.body.searchterm !== "")
         templist = findByName(templist,req.body.searchterm);
     res.render('gta',{
+        lat: req.body.latitude,
+        long: req.body.longitude,
         taglist : templist
     })
 

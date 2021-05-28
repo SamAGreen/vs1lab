@@ -120,6 +120,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 
         updateLocation: function() {
             // TODO Hier Inhalt der Funktion "update" ergänzen
+            if(document.getElementById("tag_lat").value !== undefined){
             tryLocate(function(position){
                 /*
                  *    var lat= document.getElementById("tag_lat").value
@@ -141,6 +142,11 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                 function (onerror){
                 alert(onerror);
                 });
+            }else{
+                map = getLocationMapSrc(document.getElementById("tag_lat").value,
+                    document.getElementById("tag_long").value,
+                    undefined,13);
+            }
         }
 
     }; // ... Ende öffentlicher Teil
