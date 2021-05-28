@@ -57,22 +57,21 @@ class GeoTag {
 var taglist = [];
 function findByCoordinate(long, lat){
     var temptag = [];
-    taglist.forEach()(function (elem){
-        var difflong = elem.longitude - long;
-        difflong = difflong>0 ? difflong : -difflong;
-        var difflat = elem.latitude - lat;
-        difflat = difflat>0 ? difflat : -difflat;
-        if(difflong <= 0.01 && difflat <= 0.01)
-            temptag.push(elem);
-    });
-    return temptag;
+    taglist.forEach(function (element) {
+        var difflong = element.longitude - long;
+         difflong = difflong>0 ? difflong : -difflong;
+         var difflat = element.latitude - lat;
+         difflat = difflat>0 ? difflat : -difflat;
+         if(difflong <= 1 && difflat <= 1)
+         temptag.push(element);
+         });
+         return temptag;
+
 }
-function findByName(name){
+function findByName(list,name){
     var temptag = [];
-    taglist.forEach(function (elem){
-        if(elem.hashtag.equals(name))
-            temptag.push(elem);
-        else if(elem.name.equals(name))
+    list.forEach(function (elem){
+        if(elem.hashtag === name || elem.name === name)
             temptag.push(elem);
     });
     return temptag;
@@ -115,11 +114,10 @@ app.get('/', function(req, res) {
  * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
  */
 
-// TODO: CODE ERGÄNZEN START
+
 app.post('/tagging',function(req,res){
     var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
     addTag(gtag);
-    console.log(taglist);
     res.render('gta',{
         taglist : taglist
     })
@@ -136,8 +134,14 @@ app.post('/tagging',function(req,res){
  * Falls 'term' vorhanden ist, wird nach Suchwort gefiltert.
  */
 
-// TODO: CODE ERGÄNZEN
+
 app.post('/discovery',function (req,res){
+    var templist = findByCoordinate(req.body.longitude,req.body.latitude);
+    if(req.body.searchterm !== "")
+        templist = findByName(templist,req.body.searchterm);
+    res.render('gta',{
+        taglist : templist
+    })
 
 });
 /**
