@@ -130,7 +130,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         var long = getLongitude(position);
                         lat_vis.value = lat_invis.value = lat;
                         long_vis.value = long_invis.value = long;
-                        map =  getLocationMapSrc(lat,long,undefined,13);
+                        map =  getLocationMapSrc(lat,long,JSON.parse(document.getElementById("result-img").dataset.tag),13);
                         document.getElementById("result-img").setAttribute("src",map);
                     },
                     function (onerror){

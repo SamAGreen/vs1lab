@@ -44,7 +44,6 @@ class GeoTag {
     }
 }
 
-// TODO: CODE ERGÄNZEN
 
 /**
  * Modul für 'In-Memory'-Speicherung von GeoTags mit folgenden Komponenten:
