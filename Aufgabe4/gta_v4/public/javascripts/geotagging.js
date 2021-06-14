@@ -190,8 +190,9 @@ $(function() {
             document.getElementById("tag_long").value,
             document.getElementById("tag_name").value,
             document.getElementById("tag_hashtag").value);
-        ajax.open("POST","/tagging",true);
+            ajax.open("POST","/geotags",true);
         ajax.setRequestHeader("Content-Type","application/json");
+        ajax.setRequestHeader("Data-Type", "json");
         ajax.send(JSON.stringify(tag));
     });
     /*
@@ -200,7 +201,7 @@ $(function() {
     document.getElementById("filter-form").addEventListener("submit",function (){
         event.preventDefault();
         const ajax = new XMLHttpRequest();
-        ajax.onload= function () {
+       if(ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
 
@@ -217,7 +218,7 @@ $(function() {
         const params = "searchterm" + document.getElementById("searchterm").value +
             "&searchlat" + document.getElementById("hi_lat").value +
             "&searchlong" + document.getElementById("hi_long").value;
-        ajax.open("GET","/tagging?"  + params,true);
+        ajax.open("GET","/geotags?"  + params,true);
         ajax.send();
     });
 });

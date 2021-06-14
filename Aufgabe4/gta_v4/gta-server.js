@@ -160,46 +160,11 @@ app.post('/discovery',function (req,res){
 });
 
 //REST API
-app.post("/geotags",function (req,res){
-    var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
+app.post('/geotags/',function (req,res) {
+    console.log(req.body.longitude);
+    var gtag = JSON.parse(req.body);
     inMemory.addTag(gtag);
-    res.location("/geotags/" + inMemory.getList().length-1);
-    res.sendStatus(201);
-});
-app.get("/geotags",function (req,res){
-    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude);
-    if(req.body.searchterm !== "")
-        templist = inMemory.findByName(inMemory.getList(),req.body.searchterm);
-    res.status(200).send({
-        results : templist
-    });
-});
-app.get('/geotags/:Id([0-9]+)',function (req,res){
-    if(inMemory.getList().length-1 > req.params.Id){
-        res.status(200).send({
-            result: inMemory.getList()[req.params]
-        });
-    } else {
-        res.sendStatus(404);
-    }
-});
-app.put('/geotags/:Id([0-9]+)',function (req,res) {
-  if(inMemory.getList().length-1 > req.params.Id){
-      var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
-      inMemory.getList()[req.params.Id] = gtag;
-      res.status(200).send({
-          result : inMemory.getList()[req.params.Id]
-      });
-  }else{
-      res.sendStatus(404);
-  }
-});
-app.delete('/geotags/:Id([0-9]+)',function (req,res){
-    if(inMemory.getList().length-1 > req.params.Id){
-        inMemory.deleteTag(req.params.Id);
-        res.sendStatus(200);
-    }else
-        res.sendStatus(404);
+    res.send(201);
 });
 /**
  * Setze Port und speichere in Express.
