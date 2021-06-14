@@ -1,19 +1,16 @@
 /* Dieses Skript wird ausgeführt, wenn der Browser index.html lädt. */
 
 // Befehle werden sequenziell abgearbeitet ...
-ajax = new XMLHttpRequest();
-/*
- * Event Listener fuer Tagging
- */
-document.getElementById("tag-form").addEventListener("submit",function (){
-    event.preventDefault();
-});
-/*
- * Event Listener fuer Discoverey
- */
-document.getElementById("filter-form").addEventListener("submit",function (){
-    event.preventDefault();
-});
+
+class GeoTag {
+    constructor(lat,long,name,hashtag) {
+        this.latitude = lat;
+        this.longitude = long;
+        this.name = name;
+        this.hashtag = hashtag;
+    }
+}
+
 // Es folgen einige Deklarationen, die aber noch nicht ausgeführt werden ...
 
 // Hier wird die verwendete API für Geolocations gewählt
@@ -149,6 +146,13 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                     13);
                 document.getElementById("result-img").setAttribute("src",map);
             }
+        },
+
+        refreshMap : function (taglist){
+            map = getLocationMapSrc(document.getElementById("tag_lat").value,
+                document.getElementById("tag long").value,
+                taglist,
+                13);
         }
 
     }; // ... Ende öffentlicher Teil
@@ -162,6 +166,58 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 $(function() {
     gtaLocator.updateLocation();
     /*
+ * Event Listener fuer Tagging
+ */
+    document.getElementById("tag-form").addEventListener("submit",function (){
+        event.preventDefault();
+       const ajax = new XMLHttpRequest();
+    ajax.onload = function () {
+        var response = JSON.parse(ajax.responseText);
+        gtaLocator.refreshMap(response);
 
-    */
+        document.getElementById("results").innerHTML = "";
+        response.forEach(function (tag){
+            var ul = document.getElementById("results");
+
+            var li = document.createElement("li");
+            var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
+            li.appendChild(linput);
+            ul.appendChild(li);
+        });
+    }
+
+        var tag = new GeoTag(   document.getElementById("tag_lat").value,
+            document.getElementById("tag_long").value,
+            document.getElementById("tag_name").value,
+            document.getElementById("tag_hashtag").value);
+        ajax.open("POST","/tagging",true);
+        ajax.setRequestHeader("Content-Type","application/json");
+        ajax.send(JSON.stringify(tag));
+    });
+    /*
+     * Event Listener fuer Discoverey
+     */
+    document.getElementById("filter-form").addEventListener("submit",function (){
+        event.preventDefault();
+        const ajax = new XMLHttpRequest();
+        ajax.onload= function () {
+            var response = JSON.parse(ajax.responseText);
+            gtaLocator.refreshMap(response);
+
+            document.getElementById("results").innerHTML = "";
+            response.forEach(function (tag){
+                var ul = document.getElementById("results");
+
+                var li = document.createElement("li");
+                var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
+                li.appendChild(linput);
+                ul.appendChild(li);
+            });
+        }
+        const params = document.getElementById("hi_lat") + "+"
+            + document.getElementById("hi_long") + "+"
+            + document.getElementById("searchterm");
+        ajax.open("GET","/tagging" + "?" + params,true);
+        ajax.send();
+    });
 });
