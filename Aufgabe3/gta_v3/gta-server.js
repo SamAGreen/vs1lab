@@ -53,38 +53,47 @@ class GeoTag {
  * - Funktion zum hinzufügen eines Geo Tags.
  * - Funktion zum Löschen eines Geo Tags.
  */
+var inMemory = (function () {
+    let taglist = [];
 
-var taglist = [];
-function findByCoordinate(long, lat){
-    var temptag = [];
-    taglist.forEach(function (element) {
-        var difflong = element.longitude - long;
-         var difflat = element.latitude - lat;
-         const radius = Math.sqrt(difflong*difflong + difflat*difflat);
-         if(radius <= 1)
-         temptag.push(element);
-         });
-         return temptag;
+    return {
+        findByCoordinate : function (long, lat){
+            var temptag = [];
+            taglist.forEach(function (element) {
+                var difflong = element.longitude - long;
+                var difflat = element.latitude - lat;
+                const radius = Math.sqrt(difflong*difflong + difflat*difflat);
+                if(radius <= 1)
+                    temptag.push(element);
+            });
+            return temptag;
+        },
+        getList : function (){
+            return taglist;
+        },
+        findByName: function (list,name){
+            var temptag = [];
+            list.forEach(function (elem){
+                if(elem.hashtag.toString().search(name)>=0||elem.name.toString().search(name)>=0)
+                    temptag.push(elem);
+            });
+            return temptag;
+        },
 
-}
-function findByName(list,name){
-    var temptag = [];
-    list.forEach(function (elem){
-        if(elem.hashtag.toString().search(name)>=0||elem.name.toString().search(name)>=0)
-            temptag.push(elem);
-    });
-    return temptag;
-}
-function addTag(tag){
-    taglist.push(tag);
-}
-function deleteTag(tag){
-    var index = taglist.findIndex(tag);
-    if(index >= 0){
-        taglist.splice(index,1);
+        addTag :function (tag){
+            taglist.push(tag);
+        },
+
+        deleteTag : function (tag){
+            var index = taglist.findIndex(tag);
+            if(index >= 0){
+                taglist.splice(index,1);
+            }
+        }
+
     }
-}
 
+})();
 /**
  * Route mit Pfad '/' für HTTP 'GET' Requests.
  * (http://expressjs.com/de/4x/api.html#app.get.method)
@@ -98,7 +107,7 @@ app.get('/', function(req, res) {
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        taglist: taglist
+        taglist: inMemory.getList()
     });
 });
 
@@ -118,11 +127,11 @@ app.get('/', function(req, res) {
 
 app.post('/tagging',function(req,res){
     var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
-    addTag(gtag);
+    inMemory.addTag(gtag);
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
-        taglist : taglist
+        taglist : inMemory.getList()
     })
 });
 /**
@@ -139,9 +148,9 @@ app.post('/tagging',function(req,res){
 
 
 app.post('/discovery',function (req,res){
-    var templist = findByCoordinate(req.body.longitude,req.body.latitude);
+    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude);
     if(req.body.searchterm !== "")
-        templist = findByName(templist,req.body.searchterm);
+        templist = inMemory.findByName(inMemory.getList(),req.body.searchterm);
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
