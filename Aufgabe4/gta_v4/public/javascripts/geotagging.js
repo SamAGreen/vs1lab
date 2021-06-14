@@ -3,7 +3,7 @@
 // Befehle werden sequenziell abgearbeitet ...
 
 class GeoTag {
-    constructor(lat,long,name,hashtag) {
+    constructor(lat, long, name, hashtag) {
         this.latitude = lat;
         this.longitude = long;
         this.name = name;
@@ -16,7 +16,7 @@ class GeoTag {
 // Hier wird die verwendete API für Geolocations gewählt
 // Die folgende Deklaration ist ein 'Mockup', das immer funktioniert und eine fixe Position liefert.
 GEOLOCATIONAPI = {
-    getCurrentPosition: function(onsuccess) {
+    getCurrentPosition: function (onsuccess) {
         onsuccess({
             "coords": {
                 "latitude": 49.013790,
@@ -49,9 +49,9 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
      * Bei Fehler Callback 'onerror' mit Meldung.
      * Callback Funktionen als Parameter übergeben.
      */
-    var tryLocate = function(onsuccess, onerror) {
+    var tryLocate = function (onsuccess, onerror) {
         if (geoLocationApi) {
-            geoLocationApi.getCurrentPosition(onsuccess, function(error) {
+            geoLocationApi.getCurrentPosition(onsuccess, function (error) {
                 var msg;
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
@@ -75,12 +75,12 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     };
 
     // Auslesen Breitengrad aus der Position
-    var getLatitude = function(position) {
+    var getLatitude = function (position) {
         return position.coords.latitude;
     };
 
     // Auslesen Längengrad aus Position
-    var getLongitude = function(position) {
+    var getLongitude = function (position) {
         return position.coords.longitude;
     };
 
@@ -96,7 +96,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
      * tags : Array mit Geotag Objekten, das auch leer bleiben kann
      * zoom: Zoomfaktor der Karte
      */
-    var getLocationMapSrc = function(lat, lon, tags, zoom) {
+    var getLocationMapSrc = function (lat, lon, tags, zoom) {
         zoom = typeof zoom !== 'undefined' ? zoom : 10;
 
         if (apiKey === "YOUR_API_KEY_HERE") {
@@ -105,7 +105,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         }
 
         var tagList = "&pois=You," + lat + "," + lon;
-        if (tags !== undefined) tags.forEach(function(tag) {
+        if (tags !== undefined) tags.forEach(function (tag) {
             tagList += "|" + tag.name + "," + tag.latitude + "," + tag.longitude;
         });
 
@@ -121,36 +121,36 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
-        updateLocation: function() {
+        updateLocation: function () {
             // TODO Hier Inhalt der Funktion "update" ergänzen
-            if(document.getElementById("tag_lat").value == ""){
-                tryLocate(function(position){
+            if (document.getElementById("tag_lat").value == "") {
+                tryLocate(function (position) {
                         var lat_vis = document.getElementById("tag_lat");
                         var lat_invis = document.getElementById("hi_lat");
                         var long_vis = document.getElementById("tag_long");
                         var long_invis = document.getElementById("hi_long");
-                        var lat= getLatitude(position);
+                        var lat = getLatitude(position);
                         var long = getLongitude(position);
                         lat_vis.value = lat_invis.value = lat;
                         long_vis.value = long_invis.value = long;
-                        map =  getLocationMapSrc(lat,long,JSON.parse(document.getElementById("result-img").dataset.tag),13);
-                        document.getElementById("result-img").setAttribute("src",map);
+                        map = getLocationMapSrc(lat, long, JSON.parse(document.getElementById("result-img").dataset.tag), 13);
+                        document.getElementById("result-img").setAttribute("src", map);
                     },
-                    function (onerror){
+                    function (onerror) {
                         alert(onerror);
                     });
-            }else{
+            } else {
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
                     JSON.parse(document.getElementById("result-img").dataset.tag),
                     13);
-                document.getElementById("result-img").setAttribute("src",map);
+                document.getElementById("result-img").setAttribute("src", map);
             }
         },
 
-        refreshMap : function (taglist){
+        refreshMap: function (taglist) {
             map = getLocationMapSrc(document.getElementById("tag_lat").value,
-                document.getElementById("tag long").value,
+                document.getElementById("tag_long").value,
                 taglist,
                 13);
         }
@@ -163,50 +163,49 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
  * des Skripts.
  */
-$(function() {
+const ajax = new XMLHttpRequest();
+$(function () {
     gtaLocator.updateLocation();
     /*
  * Event Listener fuer Tagging
  */
-    document.getElementById("tag-form").addEventListener("submit",function (){
+    document.getElementById("tag-form").addEventListener("submit", function () {
         event.preventDefault();
-       const ajax = new XMLHttpRequest();
-    ajax.onload = function () {
-        var response = JSON.parse(ajax.responseText);
-        gtaLocator.refreshMap(response);
-
-        document.getElementById("results").innerHTML = "";
-        response.forEach(function (tag){
-            var ul = document.getElementById("results");
-
-            var li = document.createElement("li");
-            var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
-            li.appendChild(linput);
-            ul.appendChild(li);
-        });
-    }
-
-        var tag = new GeoTag(   document.getElementById("tag_lat").value,
-            document.getElementById("tag_long").value,
-            document.getElementById("tag_name").value,
-            document.getElementById("tag_hashtag").value);
-            ajax.open("POST","/geotags",true);
-        ajax.setRequestHeader("Content-Type","application/json");
-        ajax.setRequestHeader("Data-Type", "json");
+        if (ajax.readyState === 4 && ajax.status === 201) {
+            var response = JSON.parse(ajax.responseText);
+            console.log("Hey");
+            console.log(response);
+            gtaLocator.refreshMap(response);
+            document.getElementById("results").innerHTML = "";
+            response.forEach(function (tag) {
+                var ul = document.getElementById("results");
+                var li = document.createElement("li");
+                var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
+                li.appendChild(linput);
+                ul.appendChild(li);
+            });
+        }
+        var long = document.getElementById("tag_long").value;
+        var lat = document.getElementById("tag_lat").value;
+        var name = document.getElementById("tag_name").value;
+        var hashtag = document.getElementById("tag_hashtag").value;
+        var tag = new GeoTag(long, lat, name, hashtag);
+        ajax.open("POST", "/geotags", true);
+        console.log(tag);
+        ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
     /*
      * Event Listener fuer Discoverey
      */
-    document.getElementById("filter-form").addEventListener("submit",function (){
+    document.getElementById("filter-form").addEventListener("submit", function () {
         event.preventDefault();
-        const ajax = new XMLHttpRequest();
-       if(ajax.readyState === 4 && ajax.status === 200) {
+        if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
 
             document.getElementById("results").innerHTML = "";
-            response.forEach(function (tag){
+            response.forEach(function (tag) {
                 var ul = document.getElementById("results");
 
                 var li = document.createElement("li");
@@ -218,7 +217,7 @@ $(function() {
         const params = "searchterm" + document.getElementById("searchterm").value +
             "&searchlat" + document.getElementById("hi_lat").value +
             "&searchlong" + document.getElementById("hi_long").value;
-        ajax.open("GET","/geotags?"  + params,true);
+        ajax.open("GET", "/geotags?" + params, true);
         ajax.send();
     });
 });
