@@ -53,15 +53,15 @@ class GeoTag {
  * - Funktion zum hinzufügen eines Geo Tags.
  * - Funktion zum Löschen eines Geo Tags.
  */
+
 var taglist = [];
 function findByCoordinate(long, lat){
     var temptag = [];
     taglist.forEach(function (element) {
         var difflong = element.longitude - long;
-         difflong = difflong>0 ? difflong : -difflong;
          var difflat = element.latitude - lat;
-         difflat = difflat>0 ? difflat : -difflat;
-         if(difflong <= 1 && difflat <= 1)
+         const radius = Math.sqrt(difflong*difflong + difflat*difflat);
+         if(radius <= 1)
          temptag.push(element);
          });
          return temptag;
@@ -70,7 +70,7 @@ function findByCoordinate(long, lat){
 function findByName(list,name){
     var temptag = [];
     list.forEach(function (elem){
-        if(elem.hashtag === name || elem.name === name)
+        if(elem.hashtag.toString().search(name)>=0||elem.name.toString().search(name)>=0)
             temptag.push(elem);
     });
     return temptag;
@@ -98,7 +98,7 @@ app.get('/', function(req, res) {
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        taglist: []
+        taglist: taglist
     });
 });
 
