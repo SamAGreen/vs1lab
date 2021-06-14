@@ -158,6 +158,29 @@ app.post('/discovery',function (req,res){
     })
 
 });
+
+//REST API
+app.post("/geotags",function (req,res){
+    var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
+    inMemory.addTag(gtag);
+    res.location("/geotags/" + inMemory.getList().length-1);
+    res.sendStatus(201);
+});
+app.get("/geotags",function (req,res){
+    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude);
+    if(req.body.searchterm !== "")
+        templist = inMemory.findByName(inMemory.getList(),req.body.searchterm);
+    res.status(200).send({
+        results : templist
+    });
+});
+app.get('/geotags/:userId([0-9]+)',function (req,res){
+    if(inMemory.getList().length > req.params.userI){
+        res.status(200).send({
+            result inMemory.getList()[req.params]
+        })
+    }
+});
 /**
  * Setze Port und speichere in Express.
  */

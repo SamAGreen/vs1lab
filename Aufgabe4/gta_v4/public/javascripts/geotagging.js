@@ -214,10 +214,10 @@ $(function() {
                 ul.appendChild(li);
             });
         }
-        const params = document.getElementById("hi_lat") + "+"
-            + document.getElementById("hi_long") + "+"
-            + document.getElementById("searchterm");
-        ajax.open("GET","/tagging" + "?" + params,true);
+        const params = "searchterm" + document.getElementById("searchterm").value +
+            "&searchlat" + document.getElementById("hi_lat").value +
+            "&searchlong" + document.getElementById("hi_long").value;
+        ajax.open("GET","/tagging?"  + params,true);
         ajax.send();
     });
 });
