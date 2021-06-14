@@ -1,13 +1,19 @@
 /* Dieses Skript wird ausgeführt, wenn der Browser index.html lädt. */
 
 // Befehle werden sequenziell abgearbeitet ...
-
-/**
- * "console.log" schreibt auf die Konsole des Browsers
- * Das Konsolenfenster muss im Browser explizit geöffnet werden.
+ajax = new XMLHttpRequest();
+/*
+ * Event Listener fuer Tagging
  */
-console.log("The script is going to start...");
-
+document.getElementById("tag-form").addEventListener("submit",function (){
+    event.preventDefault();
+});
+/*
+ * Event Listener fuer Discoverey
+ */
+document.getElementById("filter-form").addEventListener("submit",function (){
+    event.preventDefault();
+});
 // Es folgen einige Deklarationen, die aber noch nicht ausgeführt werden ...
 
 // Hier wird die verwendete API für Geolocations gewählt
@@ -158,5 +164,4 @@ $(function() {
     /*
 
     */
-    // TODO Hier den Aufruf für updateLocation einfügen
 });
