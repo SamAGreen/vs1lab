@@ -158,16 +158,17 @@ app.post('/discovery',function (req,res){
     })
 
 });
-
 //REST API
 app.post('/geotags',function (req,res) {
-    var resp = res.body;
-    //console.log(num);
-    //tag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
-    //inMemory.addTag(tag);
-    //inMemory.addTag(gtag);
-    res.status(201);
-    res.json(resp);
+   let lat = req.body.latitude;
+   let long = req.body.longitude;
+   let name = req.body.name;
+   let hashtag = req.body.hashtag;
+   var tag = new GeoTag(lat,long,name,hashtag);
+   inMemory.addTag(tag);
+   console.log("Tag: "+ name + " added");
+   res.status(201);
+   res.json(inMemory.getList());
 });
 /**
  * Setze Port und speichere in Express.
