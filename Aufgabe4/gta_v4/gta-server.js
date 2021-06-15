@@ -31,6 +31,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(__dirname + "/public/"));
 
+
 /**
  * Konstruktor für GeoTag Objekte.
  * GeoTag Objekte sollen min. alle Felder des 'tag-form' Formulars aufnehmen.
@@ -160,15 +161,29 @@ app.post('/discovery',function (req,res){
 });
 //REST API
 app.post('/geotags',function (req,res) {
-   let lat = req.body.latitude;
-   let long = req.body.longitude;
-   let name = req.body.name;
-   let hashtag = req.body.hashtag;
+    console.log(req.body.longitude);
+   let lat = 40;
+   let long = 40;
+   let name = "A";
+   let hashtag = "#test";
    var tag = new GeoTag(lat,long,name,hashtag);
    inMemory.addTag(tag);
    console.log("Tag: "+ name + " added");
    res.status(201);
    res.json(inMemory.getList());
+});
+
+app.get("/geotags/:userID",function (req,res){
+    var list = inMemory.getList();
+    if(req.params.userID < list.length){
+        res.status(200);
+        res.json(list[req.params.userID]);
+    }else{
+        res.sendStatus(404);
+    }
+});
+app.delete("/geotags/:userID",function (req,res){
+    var list = inMemory.getList();
 });
 /**
  * Setze Port und speichere in Express.
