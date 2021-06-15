@@ -85,11 +85,8 @@ var inMemory = (function () {
             taglist.push(tag);
         },
 
-        deleteTag : function (tag){
-            var index = taglist.findIndex(tag);
-            if(index >= 0){
+        deleteTag : function (index){
                 taglist.splice(index,1);
-            }
         }
 
     }
@@ -160,12 +157,14 @@ app.post('/discovery',function (req,res){
 
 });
 //REST API
-app.post('/geotags',function (req,res) {
+var jsonParser = bodyParser.json();
+
+app.post('/geotags',jsonParser,function (req,res) {
     console.log(req.body.longitude);
-   let lat = 40;
-   let long = 40;
-   let name = "A";
-   let hashtag = "#test";
+   let lat = req.body.latitude;
+   let long = req.body.longitude;
+   let name = req.body.name;
+   let hashtag = req.body.hashtag;
    var tag = new GeoTag(lat,long,name,hashtag);
    inMemory.addTag(tag);
    console.log("Tag: "+ name + " added");
@@ -184,6 +183,11 @@ app.get("/geotags/:userID",function (req,res){
 });
 app.delete("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
+    if(req.params.userID < list.length){
+        inMemory.deleteTag(req.params.userID);
+        res.sendStatus(200);
+    }else
+        res.sendStatus(404);
 });
 /**
  * Setze Port und speichere in Express.
