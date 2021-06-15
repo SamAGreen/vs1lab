@@ -189,7 +189,7 @@ $(function () {
         var lat = document.getElementById("tag_lat").value;
         var name = document.getElementById("tag_name").value;
         var hashtag = document.getElementById("tag_hashtag").value;
-        var tag = new GeoTag(long, lat, name, hashtag);
+        var tag = new GeoTag(lat, long, name, hashtag);
         ajax.open("POST", "/geotags", true);
         console.log(tag);
         ajax.setRequestHeader("Content-Type", "application/json");
@@ -214,9 +214,9 @@ $(function () {
                 ul.appendChild(li);
             });
         }
-        const params = "searchterm" + document.getElementById("searchterm").value +
-            "&searchlat" + document.getElementById("hi_lat").value +
-            "&searchlong" + document.getElementById("hi_long").value;
+        const params = "searchterm=" + document.getElementById("searchterm").value +
+            "&latitude=" + document.getElementById("hi_lat").value +
+            "&longitude=" + document.getElementById("hi_long").value;
         ajax.open("GET", "/geotags?" + params, true);
         ajax.send();
     });

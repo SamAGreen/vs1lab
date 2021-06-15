@@ -58,13 +58,13 @@ var inMemory = (function () {
     let taglist = [];
 
     return {
-        findByCoordinate : function (long, lat){
+        findByCoordinate : function (long, lat,userradius){
             var temptag = [];
             taglist.forEach(function (element) {
                 var difflong = element.longitude - long;
                 var difflat = element.latitude - lat;
                 const radius = Math.sqrt(difflong*difflong + difflat*difflat);
-                if(radius <= 1)
+                if(radius <= userradius)
                     temptag.push(element);
             });
             return temptag;
@@ -85,8 +85,11 @@ var inMemory = (function () {
             taglist.push(tag);
         },
 
-        deleteTag : function (index){
+        deleteTag : function (index,replacement){
+            if(replacement == null)
                 taglist.splice(index,1);
+            else
+                taglist.splice(index,1,replacement);
         }
 
     }
@@ -146,7 +149,7 @@ app.post('/tagging',function(req,res){
 
 
 app.post('/discovery',function (req,res){
-    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude);
+    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude,1);
     if(req.body.searchterm !== "")
         templist = inMemory.findByName(inMemory.getList(),req.body.searchterm);
     res.render('gta',{
@@ -158,20 +161,18 @@ app.post('/discovery',function (req,res){
 });
 //REST API
 var jsonParser = bodyParser.json();
-
+//Post
 app.post('/geotags',jsonParser,function (req,res) {
-    console.log(req.body.longitude);
    let lat = req.body.latitude;
    let long = req.body.longitude;
    let name = req.body.name;
    let hashtag = req.body.hashtag;
    var tag = new GeoTag(lat,long,name,hashtag);
    inMemory.addTag(tag);
-   console.log("Tag: "+ name + " added");
    res.status(201);
    res.json(inMemory.getList());
 });
-
+//Get mit ID
 app.get("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
     if(req.params.userID < list.length){
@@ -181,10 +182,44 @@ app.get("/geotags/:userID",function (req,res){
         res.sendStatus(404);
     }
 });
+//Get mit Query
+app.get("/geotags",function (req,res){
+    let lat = req.query.latitude;
+    let long = req.query.longitude;
+    let searchterm = req.query.searchterm;
+    let radius = req.query.radius;
+    radius = (radius == null) ? 1 : radius;
+    var taglist = inMemory.findByCoordinate(long,lat,radius);
+    if (searchterm !== "" && searchterm !== undefined){
+        taglist = inMemory.findByName(taglist,searchterm);
+    }
+    if(taglist.length=== 0)
+        res.sendStatus(404);
+    else{
+        res.status(200);
+        res.json(taglist);
+    }
+
+});
+//Put
+app.put("/geotags/:userID",jsonParser,function (req,res) {
+
+    if(req.params.userID < inMemory.getList().length){
+        let lat = req.body.latitude;
+        let long = req.body.longitude;
+        let name = req.body.name;
+        let hashtag = req.body.hashtag;
+        var tag = new GeoTag(lat,long,name,hashtag);
+        inMemory.deleteTag(req.params.userID,tag);
+        res.sendStatus(200);
+    }else
+        res.sendStatus(404);
+});
+//Delete
 app.delete("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
     if(req.params.userID < list.length){
-        inMemory.deleteTag(req.params.userID);
+        inMemory.deleteTag(req.params.userID,null);
         res.sendStatus(200);
     }else
         res.sendStatus(404);
