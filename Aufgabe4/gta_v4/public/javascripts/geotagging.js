@@ -189,6 +189,7 @@ $(function () {
         var lat = document.getElementById("tag_lat").value;
         var name = document.getElementById("tag_name").value;
         var hashtag = document.getElementById("tag_hashtag").value;
+        document.getElementById("tag_name").value= document.getElementById("tag_hashtag").value = "";
         var tag = new GeoTag(lat, long, name, hashtag);
         ajax.open("POST", "/geotags", true);
         ajax.setRequestHeader("Content-Type", "application/json");
