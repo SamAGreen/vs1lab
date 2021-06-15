@@ -187,6 +187,11 @@ app.get("/geotags",function (req,res){
     let lat = req.query.latitude;
     let long = req.query.longitude;
     let searchterm = req.query.searchterm;
+    if (searchterm.charAt(0)==="%"){ //reverse escape
+        searchterm = searchterm.substring(1);
+        searchterm = "#" + searchterm;
+    }
+    console.log(searchterm);
     let radius = req.query.radius;
     radius = (radius == null) ? 1 : radius;
     var taglist = inMemory.findByCoordinate(long,lat,radius);

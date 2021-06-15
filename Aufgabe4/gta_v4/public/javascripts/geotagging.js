@@ -214,7 +214,13 @@ $(function () {
                 ul.appendChild(li);
             });
         }}
-        const params = "searchterm=" + document.getElementById("searchterm").value +
+
+        var searchterm = document.getElementById("searchterm").value;
+        if(searchterm.charAt()==="#"){ //manual escape because I'm too stupid and lazy to use the function
+        searchterm = searchterm.substring(1);
+        searchterm = "%" + searchterm;
+        }
+        var params = "searchterm=" + searchterm +
             "&latitude=" + document.getElementById("hi_lat").value +
             "&longitude=" + document.getElementById("hi_long").value;
         ajax.open("GET", "/geotags?" + params, true);
