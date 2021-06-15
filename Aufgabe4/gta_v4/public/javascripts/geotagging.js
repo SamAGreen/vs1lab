@@ -133,7 +133,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         var long = getLongitude(position);
                         lat_vis.value = lat_invis.value = lat;
                         long_vis.value = long_invis.value = long;
-                        map = getLocationMapSrc(lat, long, JSON.parse(document.getElementById("result-img").dataset.tag), 13);
+                        map = getLocationMapSrc(lat, long, JSON.parse(document.getElementById("result-img").dataset.tag), 12);
                         document.getElementById("result-img").setAttribute("src", map);
                     },
                     function (onerror) {
@@ -143,7 +143,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                 map = getLocationMapSrc(document.getElementById("tag_lat").value,
                     document.getElementById("tag_long").value,
                     JSON.parse(document.getElementById("result-img").dataset.tag),
-                    13);
+                    12);
                 document.getElementById("result-img").setAttribute("src", map);
             }
         },
@@ -152,7 +152,8 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
             map = getLocationMapSrc(document.getElementById("tag_lat").value,
                 document.getElementById("tag_long").value,
                 taglist,
-                13);
+                12);
+            document.getElementById("result-img").setAttribute("src",map);
         }
 
     }; // ... Ende öffentlicher Teil
@@ -171,10 +172,9 @@ $(function () {
  */
     document.getElementById("tag-form").addEventListener("submit", function () {
         event.preventDefault();
+        ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
             var response = JSON.parse(ajax.responseText);
-            console.log("Hey");
-            console.log(response);
             gtaLocator.refreshMap(response);
             document.getElementById("results").innerHTML = "";
             response.forEach(function (tag) {
@@ -184,14 +184,13 @@ $(function () {
                 li.appendChild(linput);
                 ul.appendChild(li);
             });
-        }
+        }}
         var long = document.getElementById("tag_long").value;
         var lat = document.getElementById("tag_lat").value;
         var name = document.getElementById("tag_name").value;
         var hashtag = document.getElementById("tag_hashtag").value;
         var tag = new GeoTag(lat, long, name, hashtag);
         ajax.open("POST", "/geotags", true);
-        console.log(tag);
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
@@ -200,6 +199,7 @@ $(function () {
      */
     document.getElementById("filter-form").addEventListener("submit", function () {
         event.preventDefault();
+        ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
@@ -213,7 +213,7 @@ $(function () {
                 li.appendChild(linput);
                 ul.appendChild(li);
             });
-        }
+        }}
         const params = "searchterm=" + document.getElementById("searchterm").value +
             "&latitude=" + document.getElementById("hi_lat").value +
             "&longitude=" + document.getElementById("hi_long").value;
