@@ -160,6 +160,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 })(GEOLOCATIONAPI);
 
 function insertArray(array){
+    gtaLocator.refreshMap(array);
     document.getElementById("results").innerHTML = "";
     array.forEach(function (tag) {
         var ul = document.getElementById("results");
@@ -185,7 +186,7 @@ $(function () {
         ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
             var response = JSON.parse(ajax.responseText);
-            gtaLocator.refreshMap(response);
+
             insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
@@ -206,7 +207,7 @@ $(function () {
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
-            gtaLocator.refreshMap(response);
+
             insertArray(response);
         }}
         var searchterm = document.getElementById("searchterm").value;
