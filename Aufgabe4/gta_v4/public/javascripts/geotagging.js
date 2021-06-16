@@ -159,6 +159,15 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     }; // ... Ende öffentlicher Teil
 })(GEOLOCATIONAPI);
 
+function insertArray(array){
+    array.forEach(function (tag) {
+        var ul = document.getElementById("results");
+        var li = document.createElement("li");
+        var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
+        li.appendChild(linput);
+        ul.appendChild(li);
+    });
+}
 /**
  * $(function(){...}) wartet, bis die Seite komplett geladen wurde. Dann wird die
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
@@ -177,13 +186,7 @@ $(function () {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
             document.getElementById("results").innerHTML = "";
-            response.forEach(function (tag) {
-                var ul = document.getElementById("results");
-                var li = document.createElement("li");
-                var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
-                li.appendChild(linput);
-                ul.appendChild(li);
-            });
+            insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
         var lat = document.getElementById("tag_lat").value;
@@ -204,16 +207,8 @@ $(function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
-
             document.getElementById("results").innerHTML = "";
-            response.forEach(function (tag) {
-                var ul = document.getElementById("results");
-
-                var li = document.createElement("li");
-                var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
-                li.appendChild(linput);
-                ul.appendChild(li);
-            });
+            insertArray(response);
         }}
 
         var searchterm = document.getElementById("searchterm").value;
