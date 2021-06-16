@@ -94,9 +94,22 @@ var inMemory = (function () {
             else
                 taglist.splice(index,1,replacement);
         },
+
+
         setPageArray : function (array){
             page = array;
-            maxpage = array.length
+            maxpage = Math.ceil(((taglist.length) / itemsperpage));
+        },
+        setCurrentPage : function (index){
+            currentpage = index;
+        },
+        getRelevantPage : function (page_index){
+            var high = page_index * 5 ;
+            var low = high - 5;
+            return page.slice(low,high);
+        },
+        getMax : function (){
+            return maxpage;
         }
 
     }
@@ -234,7 +247,7 @@ app.delete("/geotags/:userID",function (req,res){
 /*
  *Jetzt kommt das Pagination Zeug
  */
-app.post("/Pagination",function (req,res){
+app.post("/Pagination",jsonParser,function (req,res){
     let lat = req.body.latitude;
     let long = req.body.longitude;
     let name = req.body.name;
@@ -242,8 +255,42 @@ app.post("/Pagination",function (req,res){
     var tag = new GeoTag(lat,long,name,hashtag);
     inMemory.addTag(tag);
     inMemory.setPageArray(inMemory.getList());
+    const max = inMemory.getMax();
+    const ret = max + JSON.stringify(inMemory.getRelevantPage(max));
+    res.status(201);
+    res.send(ret);
 });
+app.get("/Pagination",function (req,res){
+    let lat = req.query.latitude;
+    let long = req.query.longitude;
+    let searchterm = req.query.searchterm;
+    if (searchterm.charAt(0)==="%"){ //reverse escape
+        searchterm = searchterm.substring(1);
+        searchterm = "#" + searchterm;
+    }
+    let radius = req.query.radius;
+    radius = (radius == null) ? 1 : radius;
+    var taglist = inMemory.findByCoordinate(long,lat,radius);
+    if (searchterm !== "" && searchterm !== undefined){
+        taglist = inMemory.findByName(taglist,searchterm);
+    }
+    console.log(taglist);
+    console.log("Hey");
+    inMemory.setPageArray(taglist);
+    console.log(taglist);
+    res.status(200);
+    res.json(inMemory.getRelevantPage(1));
+});
+app.get("/Pagination/:pageID",function (req,res){
+    var ret = inMemory.getRelevantPage(req.params.pageID);
+    if(ret.length!==0){
+        res.status(200);
+        res.json(ret);
+    }else{
+        res.status(404);
+    }
 
+});
 
 
 
