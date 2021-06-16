@@ -59,7 +59,7 @@ var inMemory = (function () {
     let page = [];
     var currentpage = 1;
     var maxpage = 1;
-    let itemsperpage = 5;
+    let itemsperpage = 8;
     return {
         findByCoordinate : function (long, lat,userradius){
             var temptag = [];
