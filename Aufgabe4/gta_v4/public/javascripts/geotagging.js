@@ -160,6 +160,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 })(GEOLOCATIONAPI);
 
 function insertArray(array){
+    document.getElementById("results").innerHTML = "";
     array.forEach(function (tag) {
         var ul = document.getElementById("results");
         var li = document.createElement("li");
@@ -185,7 +186,6 @@ $(function () {
         if (ajax.readyState === 4 && ajax.status === 201) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
-            document.getElementById("results").innerHTML = "";
             insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
@@ -207,12 +207,11 @@ $(function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
-            document.getElementById("results").innerHTML = "";
             insertArray(response);
         }}
-
         var searchterm = document.getElementById("searchterm").value;
-        if(searchterm.charAt()==="#"){ //manual escape because I'm too stupid and lazy to use the function
+        document.getElementById("searchterm").value="";
+        if(searchterm.charAt()==="#"){ //manual escape because I'm too stupid to use the function
         searchterm = searchterm.substring(1);
         searchterm = "%" + searchterm;
         }
