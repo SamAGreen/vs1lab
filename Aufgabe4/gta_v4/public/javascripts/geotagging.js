@@ -174,6 +174,8 @@ function insertArray(array){
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
  * des Skripts.
  */
+var current_page = 1;
+var max_page =1;
 const ajax = new XMLHttpRequest();
 $(function () {
     gtaLocator.updateLocation();
@@ -184,7 +186,9 @@ $(function () {
         event.preventDefault();
         ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
-            var response = JSON.parse(ajax.responseText);
+            max_page = ajax.responseText.charAt(0);
+            current_page = max_page;
+            response = JSON.parse(ajax.responseText.slice(1));
             gtaLocator.refreshMap(response);
             insertArray(response);
         }}
@@ -194,7 +198,7 @@ $(function () {
         var hashtag = document.getElementById("tag_hashtag").value;
         document.getElementById("tag_name").value= document.getElementById("tag_hashtag").value = "";
         var tag = new GeoTag(lat, long, name, hashtag);
-        ajax.open("POST", "/geotags", true);
+        ajax.open("POST", "/Pagination", true);
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
@@ -205,6 +209,7 @@ $(function () {
         event.preventDefault();
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
+            current_page = 1;
             var response = JSON.parse(ajax.responseText);
             gtaLocator.refreshMap(response);
             insertArray(response);
@@ -218,7 +223,7 @@ $(function () {
         var params = "searchterm=" + searchterm +
             "&latitude=" + document.getElementById("hi_lat").value +
             "&longitude=" + document.getElementById("hi_long").value;
-        ajax.open("GET", "/geotags?" + params, true);
+        ajax.open("GET", "/Pagination?" + params, true);
         ajax.send();
     });
 });

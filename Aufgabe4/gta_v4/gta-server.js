@@ -98,7 +98,7 @@ var inMemory = (function () {
 
         setPageArray : function (array){
             page = array;
-            maxpage = Math.ceil(((taglist.length) / itemsperpage));
+            maxpage = Math.ceil(((page.length) / itemsperpage));
         },
         setCurrentPage : function (index){
             currentpage = index;
@@ -274,12 +274,10 @@ app.get("/Pagination",function (req,res){
     if (searchterm !== "" && searchterm !== undefined){
         taglist = inMemory.findByName(taglist,searchterm);
     }
-    console.log(taglist);
-    console.log("Hey");
     inMemory.setPageArray(taglist);
-    console.log(taglist);
+    var ret = inMemory.getMax() + JSON.stringify(inMemory.getRelevantPage(1));
     res.status(200);
-    res.json(inMemory.getRelevantPage(1));
+    res.send(ret);
 });
 app.get("/Pagination/:pageID",function (req,res){
     var ret = inMemory.getRelevantPage(req.params.pageID);
@@ -289,7 +287,6 @@ app.get("/Pagination/:pageID",function (req,res){
     }else{
         res.status(404);
     }
-
 });
 
 
