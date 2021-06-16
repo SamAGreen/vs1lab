@@ -56,7 +56,10 @@ class GeoTag {
  */
 var inMemory = (function () {
     let taglist = [];
-
+    let page = [];
+    var currentpage = 1;
+    var maxpage = 1;
+    let itemsperpage = 5;
     return {
         findByCoordinate : function (long, lat,userradius){
             var temptag = [];
@@ -90,6 +93,10 @@ var inMemory = (function () {
                 taglist.splice(index,1);
             else
                 taglist.splice(index,1,replacement);
+        },
+        setPageArray : function (array){
+            page = array;
+            maxpage = array.length
         }
 
     }
@@ -224,6 +231,22 @@ app.delete("/geotags/:userID",function (req,res){
     }else
         res.sendStatus(404);
 });
+/*
+ *Jetzt kommt das Pagination Zeug
+ */
+app.post("/Pagination",function (req,res){
+    let lat = req.body.latitude;
+    let long = req.body.longitude;
+    let name = req.body.name;
+    let hashtag = req.body.hashtag;
+    var tag = new GeoTag(lat,long,name,hashtag);
+    inMemory.addTag(tag);
+    inMemory.setPageArray(inMemory.getList());
+});
+
+
+
+
 /**
  * Setze Port und speichere in Express.
  */
