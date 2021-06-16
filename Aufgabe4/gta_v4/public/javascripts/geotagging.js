@@ -210,7 +210,8 @@ $(function () {
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             current_page = 1;
-            var response = JSON.parse(ajax.responseText);
+            max_page = ajax.responseText.charAt(0);
+            var response = JSON.parse(ajax.responseText.slice(1));
             gtaLocator.refreshMap(response);
             insertArray(response);
         }}
@@ -225,5 +226,33 @@ $(function () {
             "&longitude=" + document.getElementById("hi_long").value;
         ajax.open("GET", "/Pagination?" + params, true);
         ajax.send();
+    });
+    //Button Left
+    document.getElementById("button_l").addEventListener("click",function (){
+        if(current_page>1){
+            current_page--;
+            ajax.onreadystatechange = function () {
+                if(ajax.readyState ===4 && ajax.status ===200){
+                    var response = JSON.parse(ajax.responseText);
+                    gtaLocator.refreshMap(response);
+                    insertArray(response);
+                }
+            }
+            ajax.open("GET","/Pagination/"+current_page,true);
+            ajax.send();
+        }
+    });
+    //Button Right
+    document.getElementById("button_r").addEventListener("click",function (){
+        if(current_page<max_page){
+            max_page++;
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState === 4 && ajax.status === 200){
+                    var response = JSON.parse(ajax.responseText);
+                    gtaLocator.refreshMap(response);
+                    insertArray(response);
+                }
+            }
+        }
     });
 });
