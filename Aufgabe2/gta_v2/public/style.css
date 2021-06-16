@@ -54,7 +54,35 @@ fieldset{
 .tagging{
   width:25vw;
 }
+.buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.button{
+  background-color: deepskyblue;
+  border: deepskyblue;
+  padding: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
+  font-size: 16px;
+  color: white;
+}
 
+.button:hover{
+  background-color: white;
+  color: deepskyblue;
+}
+.list{
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+.taglist{
+  display: flex;
+  flex-direction: column;
+}
 
 [id^='tag_']{
   display:block;

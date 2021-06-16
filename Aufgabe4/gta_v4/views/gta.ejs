@@ -62,14 +62,16 @@
 			<!-- ############### Aufgabe1a Form2 Ende -->
 			<section class = "indiscovery">
 				<div class="taglist">
-					<ul id="results">
+					<ul class="list" id="results">
 						<% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
 							<li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
 						<% }); %>
 					</ul>
-					<button id="button_l" type="button"><<</button>
-					<button id="button_m" data-max=<%= max %> data-max=<%= min %> type="button"><%= page %></button>
-					<button id="button_r" type="button">>></button>
+					<div class="buttons">
+					<button id="button_l" class="button" type="button"><<</button>
+					<button id="button_m" class="button" data-max=<%= max %> data-max=<%= min %> type="button"><%= page %></button>
+					<button id="button_r" class="button" type="button">>></button>
+				</div>
 				</div>
 
 				<div class="tagmap">
