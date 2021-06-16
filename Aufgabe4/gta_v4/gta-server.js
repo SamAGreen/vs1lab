@@ -98,14 +98,14 @@ var inMemory = (function () {
 
         setPageArray : function (array){
             page = array;
-            maxpage = Math.ceil(((page.length) / itemsperpage));
+            maxpage = page.length<1? 1 : Math.ceil(((page.length) / itemsperpage)); //damit Max-Page nicht 0 wird
         },
         setCurrentPage : function (index){
             currentpage = index;
         },
         getRelevantPage : function (page_index){
-            var high = page_index * 5 ;
-            var low = high - 5;
+            var high = page_index * itemsperpage ;
+            var low = high - itemsperpage;
             return page.slice(low,high);
         },
         getMax : function (){
@@ -125,10 +125,14 @@ var inMemory = (function () {
  */
 
 app.get('/', function(req, res) {
+    inMemory.setCurrentPage(1);
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        taglist: inMemory.getList()
+        page : 1 + "/" + inMemory.getMax(),
+        max : inMemory.getMax(),
+        min : 1,
+        taglist: inMemory.getRelevantPage(1)
     });
 });
 
@@ -152,6 +156,7 @@ app.post('/tagging',function(req,res){
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
+        page : 100,
         taglist : inMemory.getList()
     })
 });
@@ -175,6 +180,7 @@ app.post('/discovery',function (req,res){
     res.render('gta',{
         lat: req.body.latitude,
         long: req.body.longitude,
+        page : 100,
         taglist : templist
     })
 

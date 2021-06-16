@@ -160,6 +160,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 })(GEOLOCATIONAPI);
 
 function insertArray(array){
+    gtaLocator.refreshMap(array);
     document.getElementById("results").innerHTML = "";
     array.forEach(function (tag) {
         var ul = document.getElementById("results");
@@ -174,8 +175,8 @@ function insertArray(array){
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
  * des Skripts.
  */
-var current_page = 1;
-var max_page =1;
+var current_page = document.getElementById("button_m").dataset.min;
+var max_page = document.getElementById("button_m").dataset.max;
 const ajax = new XMLHttpRequest();
 $(function () {
     gtaLocator.updateLocation();
@@ -188,8 +189,8 @@ $(function () {
         if (ajax.readyState === 4 && ajax.status === 201) {
             max_page = ajax.responseText.charAt(0);
             current_page = max_page;
+            document.getElementById("button_m").textContent = current_page + "/" + max_page;
             response = JSON.parse(ajax.responseText.slice(1));
-            gtaLocator.refreshMap(response);
             insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
@@ -211,8 +212,8 @@ $(function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             current_page = 1;
             max_page = ajax.responseText.charAt(0);
+            document.getElementById("button_m").textContent = current_page + "/" + max_page;
             var response = JSON.parse(ajax.responseText.slice(1));
-            gtaLocator.refreshMap(response);
             insertArray(response);
         }}
         var searchterm = document.getElementById("searchterm").value;
@@ -229,12 +230,13 @@ $(function () {
     });
     //Button Left
     document.getElementById("button_l").addEventListener("click",function (){
+        current_page = current_page ==null ? 1 : current_page;
         if(current_page>1){
             current_page--;
             ajax.onreadystatechange = function () {
                 if(ajax.readyState ===4 && ajax.status ===200){
                     var response = JSON.parse(ajax.responseText);
-                    gtaLocator.refreshMap(response);
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page;
                     insertArray(response);
                 }
             }
@@ -244,15 +246,32 @@ $(function () {
     });
     //Button Right
     document.getElementById("button_r").addEventListener("click",function (){
+        current_page = current_page ==null ? 1 : current_page;
         if(current_page<max_page){
-            max_page++;
+            current_page++;
             ajax.onreadystatechange = function () {
                 if (ajax.readyState === 4 && ajax.status === 200){
                     var response = JSON.parse(ajax.responseText);
-                    gtaLocator.refreshMap(response);
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page;
                     insertArray(response);
                 }
             }
+            ajax.open("GET","/Pagination/"+current_page,true);
+            ajax.send();
         }
+    });
+    //Button Mid
+    document.getElementById("button_m").addEventListener("click",function (){
+        current_page = current_page ==null ? 1 : current_page;
+        current_page = current_page === max_page ? 1 : max_page;
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4 && ajax.status === 200){
+                var response = JSON.parse(ajax.responseText);
+                document.getElementById("button_m").textContent = current_page + "/" + max_page;
+                insertArray(response);
+            }
+        }
+        ajax.open("GET","/Pagination/"+current_page,true);
+        ajax.send();
     });
 });
