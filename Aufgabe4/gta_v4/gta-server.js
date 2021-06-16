@@ -191,19 +191,14 @@ app.get("/geotags",function (req,res){
         searchterm = searchterm.substring(1);
         searchterm = "#" + searchterm;
     }
-    console.log(searchterm);
     let radius = req.query.radius;
     radius = (radius == null) ? 1 : radius;
     var taglist = inMemory.findByCoordinate(long,lat,radius);
     if (searchterm !== "" && searchterm !== undefined){
         taglist = inMemory.findByName(taglist,searchterm);
     }
-    if(taglist.length=== 0)
-        res.sendStatus(404);
-    else{
         res.status(200);
         res.json(taglist);
-    }
 
 });
 //Put
