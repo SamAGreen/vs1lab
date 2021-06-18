@@ -159,9 +159,11 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     }; // ... Ende öffentlicher Teil
 })(GEOLOCATIONAPI);
 
-/**
- * Map wi
- *
+/**Map wird geupdatet:
+ * refreshMap erzeugt neue Karte, setzt diese ein
+ * Array wird in DOM eingesetzt:
+ * Liste wird in HTML geleert. Fuer jedes Element aus dem gegebenen Array wird ein Listenelement erzeugt,
+ * dazu ein Text. Dieser wird an das Listenelement gehaengt, das Listenelement wird dann an die Liste gehaengt
  */
 function insertArray(array){
     gtaLocator.refreshMap(array);
@@ -186,7 +188,7 @@ $(function () {
     /**Event Listener fuer Tagging
      * Wenn Form Submit passiert:
      * Der normale Post wird abgehalten, die Werte werden aus den Feldern ausgelesen, Name & Hashtag Feld werden geleert
-     * Neuer Tag erzeugt, Ajax Post Request wird geöffnet, Request MIME-Type auf JSON gesetzt, der Tag wird als JSON geschickt
+     * Neuer Tag erzeugt, Ajax Post Request auf /geotags wird geöffnet, Request MIME-Type auf JSON gesetzt, der Tag wird als JSON geschickt
      * Nach Antwort:
      * insertArray mit der Antwort(Array an Tags)
      */
@@ -209,7 +211,10 @@ $(function () {
     });
     /**Event Listener fuer Discovery
      * Wenn Form Submit passiert:
-     *
+     * Normale Post abgehalten, Werte aus Feldern ausgelesen, als Queries in die URI eingesetzt
+     * Als GET auf /geotags abgeschickt
+     * Nach Antwort:
+     * insertArray() wird mit dem zurückgeschickten Array ausgeführt
      */
     document.getElementById("filter-form").addEventListener("submit", function () {
         event.preventDefault();
