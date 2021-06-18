@@ -195,9 +195,13 @@ app.post('/discovery',function (req,res){
     })
 
 });
-//REST API
+//Aber hier ist Aufgabe 4: REST API
 var jsonParser = bodyParser.json();
-//Post
+/**Post:
+ * Aus dem request body werden die Werte des Geotags genommen und neuer Tag wird erzeugt
+ * Der Tag wird in unser Array hinzugefügt, es wird als Antwort(mit status:201=creation successful)
+ * das aktuelle Array als JSON zurück geschickt
+ */
 app.post('/geotags',jsonParser,function (req,res) {
    let lat = req.body.latitude;
    let long = req.body.longitude;
@@ -208,17 +212,26 @@ app.post('/geotags',jsonParser,function (req,res) {
    res.status(201);
    res.json(inMemory.getList());
 });
-//Get mit ID
+/**Get mit ID:
+ * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ *  true: das Item wird mit status:200 zurückgeschickt
+ *  false: status:404, not found zurückgeschickt
+ */
 app.get("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
-    if(req.params.userID < list.length){
+    var index = req.params.userID;
+    if(index < list.length && index >= 0){
         res.status(200);
         res.json(list[req.params.userID]);
     }else{
         res.sendStatus(404);
     }
 });
-//Get mit Query
+/**Get mit Query:
+ * Die Filterwerte werden aus URI ausgelesen, prüfen ob searchterm ein Hashtag ist (unescape)
+ * Wenn kein radius vorhanden ist, ist default radius 1
+ * Dann wird gefiltert und das daraus erzeugte Array zurück geschickt
+ */
 app.get("/geotags",function (req,res){
     let lat = req.query.latitude;
     let long = req.query.longitude;
@@ -237,36 +250,42 @@ app.get("/geotags",function (req,res){
         res.json(taglist);
 
 });
-//Put
+/**Put mit ID:
+ * Getestet ob Index in Array
+ *  true: Tag werte werden ausgelesen, erzeugt und ersetzt dann das Element unter der ID status:204=No Content
+ *  false: 404 Antwort
+ */
 app.put("/geotags/:userID",jsonParser,function (req,res) {
-
-    if(req.params.userID < inMemory.getList().length){
+    var index = req.params.userID;
+    if(index < inMemory.getList().length && index >= 0){
         let lat = req.body.latitude;
         let long = req.body.longitude;
         let name = req.body.name;
         let hashtag = req.body.hashtag;
         var tag = new GeoTag(lat,long,name,hashtag);
-        inMemory.deleteTag(req.params.userID,tag);
-        res.sendStatus(200);
+        inMemory.deleteTag(index,tag);
+        res.sendStatus(204);
     }else
         res.sendStatus(404);
 });
-//Delete
+/**Delete mit ID:
+    * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+*  true: das Item wird gelöscht status:204=No Content
+*  false: status:404, not found zurückgeschickt
+*/
 app.delete("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
-    if(req.params.userID < list.length){
+    var index = req.params.userID;
+    if(index < list.length && index >= 0){
         inMemory.deleteTag(req.params.userID,null);
-        res.sendStatus(200);
+        res.sendStatus(204);
     }else
         res.sendStatus(404);
 });
-/**Ab hier ist Pagination
- * post: funktioniert grossteils normal, nur nach addTag() wird das page-Array immer neu gesetzt
- *       und die Max-Seite wird mit den tags der letzten Seite als string konkatiniert und zurueck geschickt
- * get mit query: auch grossteils wie normal, nach dem Filtern wird das page-Array auf das erzeugte Array gesetzt, wieder
- *                mit max konkatiniert und zurueck geschickt
- * get mit ID: es wird mit getRelevantPage(ID) ein Array zurueck gegeben, wenn dieses nicht leer ist wird dieses zurueck geschickt
- *             sonst 404
+//Ab hier ist Pagination
+/**post auf /Pagination:
+ * funktioniert grossteils normal, nur nach addTag() wird das page-Array immer neu gesetzt
+ * und die Max-Seite wird mit den tags der letzten Seite als string konkatiniert und zurueck geschickt
  */
 app.post("/Pagination",jsonParser,function (req,res){
     let lat = req.body.latitude;
@@ -281,6 +300,10 @@ app.post("/Pagination",jsonParser,function (req,res){
     res.status(201);
     res.send(ret);
 });
+/**get mit query auf /Pagination:
+* Auch grossteils wie normal, nach dem Filtern wird das page-Array auf das erzeugte Array gesetzt,
+* wieder mit max konkatiniert und zurueck geschickt
+*/
 app.get("/Pagination",function (req,res){
     let lat = req.query.latitude;
     let long = req.query.longitude;
@@ -300,6 +323,11 @@ app.get("/Pagination",function (req,res){
     res.status(200);
     res.send(ret);
 });
+/**get mit ID auf /Pagination:
+ * Es wird mit getRelevantPage(ID) ein Array zurueck gegeben
+ * Wenn nicht leer: Send mit status:200
+ * Sonst: 404
+ */
 app.get("/Pagination/:pageID",function (req,res){
     var ret = inMemory.getRelevantPage(req.params.pageID);
     if(ret.length!==0){

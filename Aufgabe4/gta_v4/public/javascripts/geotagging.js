@@ -188,9 +188,14 @@ const ajax = new XMLHttpRequest();
  */
 $(function () {
     gtaLocator.updateLocation();
-/**
- * Event Listener fuer Tagging
- */
+
+    /**Event Listener fuer Tagging
+     * Wenn Form Submit passiert:
+     * Der normale Post wird abgehalten, die Werte werden aus den Feldern ausgelesen, Name & Hashtag Feld werden geleert
+     * Neuer Tag erzeugt, Ajax Post Request auf /geotags wird geöffnet, Request MIME-Type auf JSON gesetzt, der Tag wird als JSON geschickt
+     * Nach Antwort:
+     * insertArray mit der Antwort(Array an Tags)
+     */
     document.getElementById("tag-form").addEventListener("submit", function () {
         event.preventDefault();
         ajax.onreadystatechange = function (){
@@ -212,8 +217,12 @@ $(function () {
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
-    /*
-     * Event Listener fuer Discoverey
+    /**Event Listener fuer Discovery
+     * Wenn Form Submit passiert:
+     * Normale Post abgehalten, Werte aus Feldern ausgelesen, als Queries in die URI eingesetzt
+     * Als GET auf /geotags abgeschickt
+     * Nach Antwort:
+     * insertArray() wird mit dem zurückgeschickten Array ausgeführt
      */
     document.getElementById("filter-form").addEventListener("submit", function () {
         event.preventDefault();
