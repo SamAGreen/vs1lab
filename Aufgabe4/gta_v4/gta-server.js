@@ -175,9 +175,10 @@ app.post('/geotags',jsonParser,function (req,res) {
 //Get mit ID
 app.get("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
-    if(req.params.userID < list.length){
+    var index = req.params.userID;
+    if(index < list.length && index >= 0){
         res.status(200);
-        res.json(list[req.params.userID]);
+        res.json(list[index]);
     }else{
         res.sendStatus(404);
     }
@@ -203,14 +204,14 @@ app.get("/geotags",function (req,res){
 });
 //Put
 app.put("/geotags/:userID",jsonParser,function (req,res) {
-
-    if(req.params.userID < inMemory.getList().length){
+var index = req.params.userID;
+    if(index < inMemory.getList().length && index >= 0){
         let lat = req.body.latitude;
         let long = req.body.longitude;
         let name = req.body.name;
         let hashtag = req.body.hashtag;
         var tag = new GeoTag(lat,long,name,hashtag);
-        inMemory.deleteTag(req.params.userID,tag);
+        inMemory.deleteTag(index,tag);
         res.sendStatus(200);
     }else
         res.sendStatus(404);
@@ -218,7 +219,8 @@ app.put("/geotags/:userID",jsonParser,function (req,res) {
 //Delete
 app.delete("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
-    if(req.params.userID < list.length){
+    var index = req.params.userID;
+    if(index < list.length && index >= 0){
         inMemory.deleteTag(req.params.userID,null);
         res.sendStatus(200);
     }else
