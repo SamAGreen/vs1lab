@@ -159,9 +159,13 @@ app.post('/discovery',function (req,res){
     })
 
 });
-//REST API
+//Aber hier ist Aufgabe 4: REST API
 var jsonParser = bodyParser.json();
-//Post
+/**Post:
+ * Aus dem request body werden die Werte des Geotags genommen und neuer Tag wird erzeugt
+ * Der Tag wird in unser Array hinzugefügt, es wird als Antwort(mit status:201=creation successful)
+ * das aktuelle Array als JSON zurück geschickt
+ */
 app.post('/geotags',jsonParser,function (req,res) {
    let lat = req.body.latitude;
    let long = req.body.longitude;
@@ -172,7 +176,11 @@ app.post('/geotags',jsonParser,function (req,res) {
    res.status(201);
    res.json(inMemory.getList());
 });
-//Get mit ID
+/**Get mit ID:
+ * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ *  true: das Item wird mit status:200 zurückgeschickt
+ *  false: status:404, not found zurückgeschickt
+ */
 app.get("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
     var index = req.params.userID;
@@ -183,7 +191,11 @@ app.get("/geotags/:userID",function (req,res){
         res.sendStatus(404);
     }
 });
-//Get mit Query
+/**Get mit Query:
+ * Die Filterwerte werden aus URI ausgelesen, prüfen ob searchterm ein Hashtag ist (unescape)
+ * Wenn kein radius vorhanden ist, ist default radius 1
+ * Dann wird gefiltert und das daraus erzeugte Array zurück geschickt
+ */
 app.get("/geotags",function (req,res){
     let lat = req.query.latitude;
     let long = req.query.longitude;
@@ -202,7 +214,11 @@ app.get("/geotags",function (req,res){
         res.json(taglist);
 
 });
-//Put
+/**Put mit ID:
+ * Getestet ob Index in Array
+ *  true: Tag werte werden ausgelesen, erzeugt und ersetzt dann das Element unter der ID status:204=No Content
+ *  false: 404 Antwort
+ */
 app.put("/geotags/:userID",jsonParser,function (req,res) {
 var index = req.params.userID;
     if(index < inMemory.getList().length && index >= 0){
@@ -212,17 +228,21 @@ var index = req.params.userID;
         let hashtag = req.body.hashtag;
         var tag = new GeoTag(lat,long,name,hashtag);
         inMemory.deleteTag(index,tag);
-        res.sendStatus(200);
+        res.sendStatus(204);
     }else
         res.sendStatus(404);
 });
-//Delete
+/**Delete mit ID:
+ * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ *  true: das Item wird gelöscht status:204=No Content
+ *  false: status:404, not found zurückgeschickt
+ */
 app.delete("/geotags/:userID",function (req,res){
     var list = inMemory.getList();
     var index = req.params.userID;
     if(index < list.length && index >= 0){
         inMemory.deleteTag(req.params.userID,null);
-        res.sendStatus(200);
+        res.sendStatus(204);
     }else
         res.sendStatus(404);
 });

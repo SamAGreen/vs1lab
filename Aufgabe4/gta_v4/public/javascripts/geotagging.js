@@ -147,7 +147,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                 document.getElementById("result-img").setAttribute("src", map);
             }
         },
-
+        //erzeugt neue Map und setzt diese dann ein
         refreshMap: function (taglist) {
             map = getLocationMapSrc(document.getElementById("tag_lat").value,
                 document.getElementById("tag_long").value,
@@ -159,6 +159,10 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     }; // ... Ende öffentlicher Teil
 })(GEOLOCATIONAPI);
 
+/**
+ * Map wi
+ *
+ */
 function insertArray(array){
     gtaLocator.refreshMap(array);
     document.getElementById("results").innerHTML = "";
@@ -178,15 +182,19 @@ function insertArray(array){
 const ajax = new XMLHttpRequest();
 $(function () {
     gtaLocator.updateLocation();
-    /*
- * Event Listener fuer Tagging
- */
+
+    /**Event Listener fuer Tagging
+     * Wenn Form Submit passiert:
+     * Der normale Post wird abgehalten, die Werte werden aus den Feldern ausgelesen, Name & Hashtag Feld werden geleert
+     * Neuer Tag erzeugt, Ajax Post Request wird geöffnet, Request MIME-Type auf JSON gesetzt, der Tag wird als JSON geschickt
+     * Nach Antwort:
+     * insertArray mit der Antwort(Array an Tags)
+     */
     document.getElementById("tag-form").addEventListener("submit", function () {
         event.preventDefault();
         ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
             var response = JSON.parse(ajax.responseText);
-
             insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
@@ -199,15 +207,15 @@ $(function () {
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
-    /*
-     * Event Listener fuer Discoverey
+    /**Event Listener fuer Discovery
+     * Wenn Form Submit passiert:
+     *
      */
     document.getElementById("filter-form").addEventListener("submit", function () {
         event.preventDefault();
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
             var response = JSON.parse(ajax.responseText);
-
             insertArray(response);
         }}
         var searchterm = document.getElementById("searchterm").value;
