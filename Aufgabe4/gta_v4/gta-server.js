@@ -56,10 +56,12 @@ class GeoTag {
  */
 var inMemory = (function () {
     let taglist = [];
-    let page = [];
+    let page = [];          //Speichert relevanten Tags, damit wir immer nur die Tags auf den Seiten zurueck schicken die wir brauchen
+                            //z.B. nach dem Filtern wollen wir beim Seiten rumklicken weiterhin immer nur die gefilterten Tags haben,
+                            //damit das funktioniert muessen wir diese semi-permanent abspeichern
     var currentpage = 1;
     var maxpage = 1;
-    let itemsperpage = 8;
+    let itemsperpage = 8;   //kann man aendern wie man will,brauchen wir spaeter zur berechnung von welchen Tags wir zurueck geben
     return {
         findByCoordinate : function (long, lat,userradius){
             var temptag = [];
@@ -95,7 +97,15 @@ var inMemory = (function () {
                 taglist.splice(index,1,replacement);
         },
 
-
+        //
+        /**hier fangen die Pagination Methoden an:
+         * setPageArray: Setzt unser Seitenarray auf das relevante Array und berechnet dann die MaxPage
+         * setCurrentPage: setzt die Variable currentpage
+         * getRelevantPage: berechnet auf Basis der itemsperpage und einem seiten index welche Elemente aus dem Array
+         *                  zurueck gegeben werden muessen z.B.: itemsperpage = 10, page_index = 2 => high = 20, low = 10
+         *                  es werden item 10 bis (nicht einschliesslich) 20 als Array zurueck gegeben
+         * getMax: gibt Maximale Seitenanzahl zurueck
+         */
         setPageArray : function (array){
             page = array;
             maxpage = page.length<1? 1 : Math.ceil(((page.length) / itemsperpage)); //damit Max-Page nicht 0 wird
@@ -129,8 +139,8 @@ app.get('/', function(req, res) {
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        page : 1 + "/" + inMemory.getMax(),
-        max : inMemory.getMax(),
+        page : 1 + "/" + inMemory.getMax(), //speichern page, max, min in DOM ab, damit beim neuladen der Seite
+        max : inMemory.getMax(),            //die richtigen Werte trotzdem vorhanden sind
         min : 1,
         taglist: inMemory.getRelevantPage(1)
     });
@@ -250,8 +260,13 @@ app.delete("/geotags/:userID",function (req,res){
     }else
         res.sendStatus(404);
 });
-/*
- *Jetzt kommt das Pagination Zeug
+/**Ab hier ist Pagination
+ * post: funktioniert grossteils normal, nur nach addTag() wird das page-Array immer neu gesetzt
+ *       und die Max-Seite wird mit den tags der letzten Seite als string konkatiniert und zurueck geschickt
+ * get mit query: auch grossteils wie normal, nach dem Filtern wird das page-Array auf das erzeugte Array gesetzt, wieder
+ *                mit max konkatiniert und zurueck geschickt
+ * get mit ID: es wird mit getRelevantPage(ID) ein Array zurueck gegeben, wenn dieses nicht leer ist wird dieses zurueck geschickt
+ *             sonst 404
  */
 app.post("/Pagination",jsonParser,function (req,res){
     let lat = req.body.latitude;

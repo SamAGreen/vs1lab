@@ -159,6 +159,12 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     }; // ... Ende öffentlicher Teil
 })(GEOLOCATIONAPI);
 
+/**Map wird geupdatet:
+ * refreshMap erzeugt neue Karte, setzt diese ein
+ * Array wird in DOM eingesetzt:
+ * Liste wird in HTML geleert. Fuer jedes Element aus dem gegebenen Array wird ein Listenelement erzeugt,
+ * dazu ein Text. Dieser wird an das Listenelement gehaengt, das Listenelement wird dann an die Liste gehaengt
+ */
 function insertArray(array){
     gtaLocator.refreshMap(array);
     document.getElementById("results").innerHTML = "";
@@ -170,27 +176,30 @@ function insertArray(array){
         ul.appendChild(li);
     });
 }
+
+var current_page = document.getElementById("button_m").dataset.min; //Variablen, die die zwei wichtigen Seitenwerte speichern
+var max_page = document.getElementById("button_m").dataset.max;     //Wenn Seite von Server geladen wird werden die Werte in data-set
+                                                                            //in DOM gespeichert, wichtig fuer wenn Seite neu geladen wird
+const ajax = new XMLHttpRequest();
 /**
  * $(function(){...}) wartet, bis die Seite komplett geladen wurde. Dann wird die
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
  * des Skripts.
  */
-var current_page = document.getElementById("button_m").dataset.min;
-var max_page = document.getElementById("button_m").dataset.max;
-const ajax = new XMLHttpRequest();
 $(function () {
     gtaLocator.updateLocation();
-    /*
+/**
  * Event Listener fuer Tagging
  */
     document.getElementById("tag-form").addEventListener("submit", function () {
         event.preventDefault();
         ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
-            max_page = ajax.responseText.charAt(0);
-            current_page = max_page;
-            document.getElementById("button_m").textContent = current_page + "/" + max_page;
-            response = JSON.parse(ajax.responseText.slice(1));
+            max_page = ajax.responseText.charAt(0);             //schneidet max_page aus der Response
+            current_page = max_page;                            //current_page = max_page beim hinzufuegen weil wir immer auf der
+                                                                //Seite sein wollen wo der Tag hinzugefuegt wurde
+            document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
+            response = JSON.parse(ajax.responseText.slice(1));  //das wirkliche Tag array ist dann ab dem ersten Zeichen bis ende
             insertArray(response);
         }}
         var long = document.getElementById("tag_long").value;
@@ -199,7 +208,7 @@ $(function () {
         var hashtag = document.getElementById("tag_hashtag").value;
         document.getElementById("tag_name").value= document.getElementById("tag_hashtag").value = "";
         var tag = new GeoTag(lat, long, name, hashtag);
-        ajax.open("POST", "/Pagination", true);
+        ajax.open("POST", "/Pagination", true); //Jetzt wird auf /Pagination geschickt
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
@@ -210,11 +219,11 @@ $(function () {
         event.preventDefault();
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
-            current_page = 1;
-            max_page = ajax.responseText.charAt(0);
-            document.getElementById("button_m").textContent = current_page + "/" + max_page;
-            var response = JSON.parse(ajax.responseText.slice(1));
-            insertArray(response);
+            current_page = 1;                           //bei filtern wird immer auf die erste Seite gesetzt
+            max_page = ajax.responseText.charAt(0);     //max page wird aus der Antwort herausgeschnitten
+            document.getElementById("button_m").textContent = current_page + "/" + max_page; //Buttontext gesetzt
+            var response = JSON.parse(ajax.responseText.slice(1)); //JSON Array aus antwort geschnitten und dann zu Code geparsed
+            insertArray(response);                                  //Array eingesetzt/Map geupdatet
         }}
         var searchterm = document.getElementById("searchterm").value;
         document.getElementById("searchterm").value="";
@@ -230,13 +239,13 @@ $(function () {
     });
     //Button Left
     document.getElementById("button_l").addEventListener("click",function (){
-        current_page = current_page ==null ? 1 : current_page;
-        if(current_page>1){
-            current_page--;
+        current_page = current_page ==null ? 1 : current_page;  //Ist wegen Bug, den ich nicht finden konnte
+        if(current_page>1){                                     //Wenn current=1 soll Button nix machen
+            current_page--;                                     //Seite nach links, also current_page-1
             ajax.onreadystatechange = function () {
                 if(ajax.readyState ===4 && ajax.status ===200){
                     var response = JSON.parse(ajax.responseText);
-                    document.getElementById("button_m").textContent = current_page + "/" + max_page;
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Setzt text von mittleren Button
                     insertArray(response);
                 }
             }
@@ -246,13 +255,13 @@ $(function () {
     });
     //Button Right
     document.getElementById("button_r").addEventListener("click",function (){
-        current_page = current_page ==null ? 1 : current_page;
-        if(current_page<max_page){
+        current_page = current_page ==null ? 1 : current_page;  //Bug
+        if(current_page<max_page){                              //wenn current = max ist soll nix passieren
             current_page++;
             ajax.onreadystatechange = function () {
                 if (ajax.readyState === 4 && ajax.status === 200){
                     var response = JSON.parse(ajax.responseText);
-                    document.getElementById("button_m").textContent = current_page + "/" + max_page;
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Setzt mittleren Button
                     insertArray(response);
                 }
             }
@@ -263,8 +272,8 @@ $(function () {
     //Button Mid
     document.getElementById("button_m").addEventListener("click",function (){
         current_page = current_page ==null ? 1 : current_page;
-        current_page = current_page === max_page ? 1 : max_page;
-        ajax.onreadystatechange = function () {
+        current_page = current_page === max_page ? 1 : max_page; //wenn current = max => current = 1, sonst current = max,
+        ajax.onreadystatechange = function () {                  //zum schnellen hin und her springen gedacht
             if (ajax.readyState === 4 && ajax.status === 200){
                 var response = JSON.parse(ajax.responseText);
                 document.getElementById("button_m").textContent = current_page + "/" + max_page;
