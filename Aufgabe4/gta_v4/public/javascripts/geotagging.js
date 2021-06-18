@@ -122,7 +122,6 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
         updateLocation: function () {
-            // TODO Hier Inhalt der Funktion "update" ergänzen
             if (document.getElementById("tag_lat").value == "") {
                 tryLocate(function (position) {
                         var lat_vis = document.getElementById("tag_lat");
@@ -130,7 +129,9 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                         var long_vis = document.getElementById("tag_long");
                         var long_invis = document.getElementById("hi_long");
                         var lat = getLatitude(position);
+                        lat = lat * 1000000;lat = Math.round(lat);lat = lat / 1000000;
                         var long = getLongitude(position);
+                        long = long * 1000000;long = Math.round(long);long = long / 1000000;
                         lat_vis.value = lat_invis.value = lat;
                         long_vis.value = long_invis.value = long;
                         map = getLocationMapSrc(lat, long, JSON.parse(document.getElementById("result-img").dataset.tag), 12);
