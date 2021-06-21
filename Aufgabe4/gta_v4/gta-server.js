@@ -56,7 +56,7 @@ class GeoTag {
  */
 var inMemory = (function () {
     let taglist = [];
-    let page = [];          //Speichert relevanten Tags, damit wir immer nur die Tags auf den Seiten zurueck schicken die wir brauchen
+    let page = [];            //Speichert relevanten Tags, damit wir immer nur die Tags auf den Seiten zurueck schicken die wir brauchen
                             //z.B. nach dem Filtern wollen wir beim Seiten rumklicken weiterhin immer nur die gefilterten Tags haben,
                             //damit das funktioniert muessen wir diese semi-permanent abspeichern
     var currentpage = 1;
@@ -96,8 +96,6 @@ var inMemory = (function () {
             else
                 taglist.splice(index,1,replacement);
         },
-
-        //
         /**hier fangen die Pagination Methoden an:
          * setPageArray: Setzt unser Seitenarray auf das relevante Array und berechnet dann die MaxPage
          * setCurrentPage: setzt die Variable currentpage
