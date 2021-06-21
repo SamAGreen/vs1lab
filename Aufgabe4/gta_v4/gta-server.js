@@ -192,12 +192,17 @@ app.post('/geotags', jsonParser, function (req, res) {
     let name = req.body.name;
     let hashtag = req.body.hashtag;
     var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
-    inMemory.addTag(tag);
-    var retlist = inMemory.getList();
-    var max = inMemory.getMax(retlist);
-    var ret = [max, inMemory.getRelevantPage(retlist,max)];
-    res.status(201);
-    res.json(ret);
+    if(lat >= -90 && lat <=90 && long >=-180 && long <180){
+        inMemory.addTag(tag);
+        var retlist = inMemory.getList();
+        var max = inMemory.getMax(retlist);
+        var ret = [max, inMemory.getRelevantPage(retlist,max)];
+        res.status(201);
+        res.json(ret);
+    }else{
+        res.status(400);
+    }
+
 });
 /**Get mit ID:
  * Prüfen ob Item unter der ID überhaupt im Array vorhanden ist
@@ -224,24 +229,28 @@ app.get("/geotags/:userID", function (req, res) {
 /**Get mit Query:
  * Die Filterwerte werden aus URI ausgelesen, prüfen ob searchterm ein Hashtag ist (unescape)
  * Wenn kein radius vorhanden ist, ist default radius 1
- * Dann wird gefiltert und das daraus erzeugte Array zurück geschickt
+ * Dann wird gefiltert, wenn eine page mitgeliefert wird wird die gewünschte Seite zurückgeschickt
  */
 app.get("/geotags",function (req,res){
     let lat = req.query.latitude;
     let long = req.query.longitude;
     let searchterm = req.query.searchterm;
+    let page = req.query.page;
+    let radius = req.query.radius;
+    radius = (radius == null) ? 1 : radius;
     if (searchterm.charAt(0)==="%"){ //reverse escape
         searchterm = searchterm.substring(1);
         searchterm = "#" + searchterm;
     }
-    let radius = req.query.radius;
-    radius = (radius == null) ? 1 : radius;
     var taglist = inMemory.findByCoordinate(long,lat,radius);
-    if (searchterm !== "" && searchterm !== undefined){
-        taglist = inMemory.findByName(taglist,searchterm);
+    if (searchterm !== "" && searchterm !== undefined) {
+        taglist = inMemory.findByName(taglist, searchterm);
     }
+    let max = inMemory.getMax(taglist);
+    page = (page == null) ? 1 : page;
+    taglist = inMemory.getRelevantPage(taglist,page);
         res.status(200);
-        res.json(taglist);
+        res.json([max,taglist]);
 
 });
 /**Put mit ID:
@@ -258,18 +267,20 @@ app.put("/geotags/:userID", jsonParser, function (req, res) {
     let hashtag = req.body.hashtag;
     var found = false;
     var newtag = new GeoTag(lat, long, name, hashtag, index);
-    list.every(function (tag, ind) {
-        if (index == tag.identifier) {
-            inMemory.deleteTag(ind, newtag);
-            res.sendStatus(204);
-            found = true;
-            return false;
-        }
-        return true;
-    });
-    if(found == false)
-        res.sendStatus(404);
-
+    if(lat >= -90 && lat <=90 && long >=-180 && long <180){
+        list.every(function (tag, ind) {
+            if (index == tag.identifier) {
+                inMemory.deleteTag(ind, newtag);
+                res.sendStatus(204);
+                found = true;
+                return false;
+            }
+            return true;
+        });
+        if(found == false)
+            res.sendStatus(404);
+    }else
+        res.sendStatus(400);
 });
 /**Delete mit ID:
  * Prüfen ob Item mit der ID überhaupt im Array vorhanden ist
@@ -292,61 +303,7 @@ app.delete("/geotags/:userID", function (req, res) {
     if(found==false)
         res.sendStatus(404);
 });
-//Ab hier ist Pagination
-/**post auf /Pagination:
- * funktioniert grossteils normal, nur nach addTag() wird das page-Array immer neu gesetzt
- * und die Max-Seite wird mit den tags der letzten Seite als string konkatiniert und zurueck geschickt
- */
-app.post("/Pagination",jsonParser,function (req,res){
-    let lat = req.body.latitude;
-    let long = req.body.longitude;
-    let name = req.body.name;
-    let hashtag = req.body.hashtag;
-    var tag = new GeoTag(lat,long,name,hashtag);
-    inMemory.addTag(tag);
-    inMemory.setPageArray(inMemory.getList());
-    const max = inMemory.getMax();
-    const ret = max + JSON.stringify(inMemory.getRelevantPage(max));
-    res.status(201);
-    res.send(ret);
-});
-/**get mit query auf /Pagination:
-* Auch grossteils wie normal, nach dem Filtern wird das page-Array auf das erzeugte Array gesetzt,
-* wieder mit max konkatiniert und zurueck geschickt
-*/
-app.get("/Pagination",function (req,res){
-    let lat = req.query.latitude;
-    let long = req.query.longitude;
-    let searchterm = req.query.searchterm;
-    if (searchterm.charAt(0)==="%"){ //reverse escape
-        searchterm = searchterm.substring(1);
-        searchterm = "#" + searchterm;
-    }
-    let radius = req.query.radius;
-    radius = (radius == null) ? 1 : radius;
-    var taglist = inMemory.findByCoordinate(long,lat,radius);
-    if (searchterm !== "" && searchterm !== undefined){
-        taglist = inMemory.findByName(taglist,searchterm);
-    }
-    inMemory.setPageArray(taglist);
-    var ret = inMemory.getMax() + JSON.stringify(inMemory.getRelevantPage(1));
-    res.status(200);
-    res.send(ret);
-});
-/**get mit ID auf /Pagination:
- * Es wird mit getRelevantPage(ID) ein Array zurueck gegeben
- * Wenn nicht leer: Send mit status:200
- * Sonst: 404
- */
-app.get("/Pagination/:pageID",function (req,res){
-    var ret = inMemory.getRelevantPage(req.params.pageID);
-    if(ret.length!==0){
-        res.status(200);
-        res.json(ret);
-    }else{
-        res.status(404);
-    }
-});
+
 
 
 
