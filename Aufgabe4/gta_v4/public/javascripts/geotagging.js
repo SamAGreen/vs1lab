@@ -167,9 +167,9 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
  */
 function insertArray(array){
     gtaLocator.refreshMap(array);
-    document.getElementById("results").innerHTML = "";
+    var ul = document.getElementById("results");
+    ul.innerHTML = "";
     array.forEach(function (tag) {
-        var ul = document.getElementById("results");
         var li = document.createElement("li");
         var linput = document.createTextNode(tag.name + " (" + tag.latitude + "," + tag.longitude + ")" + tag.hashtag);
         li.appendChild(linput);
@@ -225,7 +225,7 @@ $(function () {
         }}
         var searchterm = document.getElementById("searchterm").value;
         document.getElementById("searchterm").value="";
-        if(searchterm.charAt()==="#"){ //manual escape because I'm too stupid to use the function
+        if(searchterm.charAt()==="#"){
         searchterm = searchterm.substring(1);
         searchterm = "%" + searchterm;
         }
