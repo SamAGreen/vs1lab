@@ -37,11 +37,12 @@ app.use(express.static(__dirname + "/public/"));
  * GeoTag Objekte sollen min. alle Felder des 'tag-form' Formulars aufnehmen.
  */
 class GeoTag {
-    constructor(lat,long,name,hashtag) {
+    constructor(lat, long, name, hashtag, id) {
         this.latitude = lat;
         this.longitude = long;
         this.name = name;
         this.hashtag = hashtag;
+        this.identifier = id;
     }
 }
 
@@ -58,38 +59,38 @@ var inMemory = (function () {
     let taglist = [];
 
     return {
-        findByCoordinate : function (long, lat,userradius){
+        findByCoordinate: function (long, lat, userradius) {
             var temptag = [];
             taglist.forEach(function (element) {
                 var difflong = element.longitude - long;
                 var difflat = element.latitude - lat;
-                const radius = Math.sqrt(difflong*difflong + difflat*difflat);
-                if(radius <= userradius)
+                const radius = Math.sqrt(difflong * difflong + difflat * difflat);
+                if (radius <= userradius)
                     temptag.push(element);
             });
             return temptag;
         },
-        getList : function (){
+        getList: function () {
             return taglist;
         },
-        findByName: function (list,name){
+        findByName: function (list, name) {
             var temptag = [];
-            list.forEach(function (elem){
-                if(elem.hashtag.toString().search(name)>=0||elem.name.toString().search(name)>=0)
+            list.forEach(function (elem) {
+                if (elem.hashtag.toString().search(name) >= 0 || elem.name.toString().search(name) >= 0)
                     temptag.push(elem);
             });
             return temptag;
         },
 
-        addTag :function (tag){
+        addTag: function (tag) {
             taglist.push(tag);
         },
 
-        deleteTag : function (index,replacement){
-            if(replacement == null)
-                taglist.splice(index,1);
+        deleteTag: function (index, replacement) {
+            if (replacement == null)
+                taglist.splice(index, 1);
             else
-                taglist.splice(index,1,replacement);
+                taglist.splice(index, 1, replacement);
         }
 
     }
@@ -104,7 +105,7 @@ var inMemory = (function () {
  * Als Response wird das ejs-Template ohne Geo Tag Objekte gerendert.
  */
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.render('gta', {
         lat: undefined,
         long: undefined,
@@ -126,13 +127,13 @@ app.get('/', function(req, res) {
  */
 
 
-app.post('/tagging',function(req,res){
-    var gtag = new GeoTag(req.body.latitude,req.body.longitude,req.body.name,req.body.hashtag);
+app.post('/tagging', function (req, res) {
+    var gtag = new GeoTag(req.body.latitude, req.body.longitude, req.body.name, req.body.hashtag);
     inMemory.addTag(gtag);
-    res.render('gta',{
+    res.render('gta', {
         lat: req.body.latitude,
         long: req.body.longitude,
-        taglist : inMemory.getList()
+        taglist: inMemory.getList()
     })
 });
 /**
@@ -148,46 +149,54 @@ app.post('/tagging',function(req,res){
  */
 
 
-app.post('/discovery',function (req,res){
-    var templist = inMemory.findByCoordinate(req.body.longitude,req.body.latitude,1);
-    if(req.body.searchterm !== "")
-        templist = inMemory.findByName(inMemory.getList(),req.body.searchterm);
-    res.render('gta',{
+app.post('/discovery', function (req, res) {
+    var templist = inMemory.findByCoordinate(req.body.longitude, req.body.latitude, 1);
+    if (req.body.searchterm !== "")
+        templist = inMemory.findByName(inMemory.getList(), req.body.searchterm);
+    res.render('gta', {
         lat: req.body.latitude,
         long: req.body.longitude,
-        taglist : templist
+        taglist: templist
     })
 
 });
 //Aber hier ist Aufgabe 4: REST API
 var jsonParser = bodyParser.json();
+var global_index = 0;
 /**Post:
- * Aus dem request body werden die Werte des Geotags genommen und neuer Tag wird erzeugt
+ * Aus dem request body werden die Werte des Geotags genommen und neuer Tag wird eigener ID erzeugt
  * Der Tag wird in unser Array hinzugefügt, es wird als Antwort(mit status:201=creation successful)
  * das aktuelle Array als JSON zurück geschickt
  */
-app.post('/geotags',jsonParser,function (req,res) {
-   let lat = req.body.latitude;
-   let long = req.body.longitude;
-   let name = req.body.name;
-   let hashtag = req.body.hashtag;
-   var tag = new GeoTag(lat,long,name,hashtag);
-   inMemory.addTag(tag);
-   res.status(201);
-   res.json(inMemory.getList());
+app.post('/geotags', jsonParser, function (req, res) {
+    let lat = req.body.latitude;
+    let long = req.body.longitude;
+    let name = req.body.name;
+    let hashtag = req.body.hashtag;
+    var tag = new GeoTag(lat, long, name, hashtag, global_index++);
+    inMemory.addTag(tag);
+    res.status(201);
+    res.json(inMemory.getList());
 });
 /**Get mit ID:
- * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ * Prüfen ob Item unter der ID überhaupt im Array vorhanden ist
  *  true: das Item wird mit status:200 zurückgeschickt
  *  false: status:404, not found zurückgeschickt
  */
-app.get("/geotags/:userID",function (req,res){
+app.get("/geotags/:userID", function (req, res) {
     var list = inMemory.getList();
-    var index = req.params.userID;
-    if(index < list.length && index >= 0){
-        res.status(200);
-        res.json(list[index]);
-    }else{
+    var index = req.params.userID.toString();
+    var found = false;
+    list.every(function (tag) {
+        if (index == tag.identifier) {
+            res.status(200);
+            res.json(tag);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    if (found == false) {
         res.sendStatus(404);
     }
 });
@@ -196,22 +205,22 @@ app.get("/geotags/:userID",function (req,res){
  * Wenn kein radius vorhanden ist, ist default radius 1
  * Dann wird gefiltert und das daraus erzeugte Array zurück geschickt
  */
-app.get("/geotags",function (req,res){
+app.get("/geotags", function (req, res) {
     let lat = req.query.latitude;
     let long = req.query.longitude;
     let searchterm = req.query.searchterm;
-    if (searchterm.charAt(0)==="%"){ //reverse escape
+    if (searchterm.charAt(0) === "%") { //reverse escape
         searchterm = searchterm.substring(1);
         searchterm = "#" + searchterm;
     }
     let radius = req.query.radius;
     radius = (radius == null) ? 1 : radius;
-    var taglist = inMemory.findByCoordinate(long,lat,radius);
-    if (searchterm !== "" && searchterm !== undefined){
-        taglist = inMemory.findByName(taglist,searchterm);
+    var taglist = inMemory.findByCoordinate(long, lat, radius);
+    if (searchterm !== "" && searchterm !== undefined) {
+        taglist = inMemory.findByName(taglist, searchterm);
     }
-        res.status(200);
-        res.json(taglist);
+    res.status(200);
+    res.json(taglist);
 
 });
 /**Put mit ID:
@@ -219,31 +228,47 @@ app.get("/geotags",function (req,res){
  *  true: Tag werte werden ausgelesen, erzeugt und ersetzt dann das Element unter der ID status:204=No Content
  *  false: 404 Antwort
  */
-app.put("/geotags/:userID",jsonParser,function (req,res) {
-var index = req.params.userID;
-    if(index < inMemory.getList().length && index >= 0){
-        let lat = req.body.latitude;
-        let long = req.body.longitude;
-        let name = req.body.name;
-        let hashtag = req.body.hashtag;
-        var tag = new GeoTag(lat,long,name,hashtag);
-        inMemory.deleteTag(index,tag);
-        res.sendStatus(204);
-    }else
-        res.sendStatus(404);
+app.put("/geotags/:userID", jsonParser, function (req, res) {
+    var list = inMemory.getList();
+    var index = req.params.userID;
+    let lat = req.body.latitude;
+    let long = req.body.longitude;
+    let name = req.body.name;
+    let hashtag = req.body.hashtag;
+    var found = false;
+    var newtag = new GeoTag(lat, long, name, hashtag, index);
+    list.every(function (tag, ind) {
+        if (index == tag.identifier) {
+            inMemory.deleteTag(ind, newtag);
+            res.sendStatus(204);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+if(found == false)
+    res.sendStatus(404);
+
 });
 /**Delete mit ID:
  * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
  *  true: das Item wird gelöscht status:204=No Content
  *  false: status:404, not found zurückgeschickt
  */
-app.delete("/geotags/:userID",function (req,res){
+app.delete("/geotags/:userID", function (req, res) {
     var list = inMemory.getList();
     var index = req.params.userID;
-    if(index < list.length && index >= 0){
-        inMemory.deleteTag(req.params.userID,null);
-        res.sendStatus(204);
-    }else
+    var found = false;
+    list.every(function (tag,ind){
+        if(index == tag.identifier){
+            inMemory.deleteTag(ind,null);
+            res.sendStatus(204);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    if(found==false)
         res.sendStatus(404);
 });
 /**
