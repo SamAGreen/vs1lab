@@ -175,10 +175,14 @@ app.post('/geotags', jsonParser, function (req, res) {
     let long = req.body.longitude;
     let name = req.body.name;
     let hashtag = req.body.hashtag;
-    var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
-    inMemory.addTag(tag);
-    res.status(201);
-    res.json(inMemory.getList());
+    if(lat >= -90 && lat <=90 && long >=-180 && long <180){
+        var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
+        inMemory.addTag(tag);
+        res.status(201);
+        res.json(inMemory.getList());
+    }else
+        res.sendStatus(400);
+
 });
 /**Get mit ID:
  * Prüfen ob Item unter der ID überhaupt im Array vorhanden ist
@@ -239,17 +243,21 @@ app.put("/geotags/:userID", jsonParser, function (req, res) {
     let hashtag = req.body.hashtag;
     var found = false;
     var newtag = new GeoTag(lat, long, name, hashtag, index);
-    list.every(function (tag, ind) {
-        if (index == tag.identifier) {
-            inMemory.deleteTag(ind, newtag);
-            res.sendStatus(204);
-            found = true;
-            return false;
-        }
-        return true;
-    });
-if(found == false)
-    res.sendStatus(404);
+    if(lat >= -90 && lat <=90 && long >=-180 && long <180){
+        list.every(function (tag, ind) {
+            if (index == tag.identifier) {
+                inMemory.deleteTag(ind, newtag);
+                res.sendStatus(204);
+                found = true;
+                return false;
+            }
+            return true;
+        });
+        if(found == false)
+            res.sendStatus(404);
+    }else
+        res.sendStatus(400);
+
 
 });
 /**Delete mit ID:
