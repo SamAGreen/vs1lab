@@ -57,7 +57,7 @@ class GeoTag {
  */
 var inMemory = (function () {
     let taglist = [];
-
+    let global_index = 0;
     return {
         findByCoordinate: function (long, lat, userradius) {
             var temptag = [];
@@ -91,6 +91,9 @@ var inMemory = (function () {
                 taglist.splice(index, 1);
             else
                 taglist.splice(index, 1, replacement);
+        },
+        getIndex : function (){
+            return global_index++;
         }
 
     }
@@ -162,7 +165,6 @@ app.post('/discovery', function (req, res) {
 });
 //Aber hier ist Aufgabe 4: REST API
 var jsonParser = bodyParser.json();
-var global_index = 0;
 /**Post:
  * Aus dem request body werden die Werte des Geotags genommen und neuer Tag wird eigener ID erzeugt
  * Der Tag wird in unser Array hinzugefügt, es wird als Antwort(mit status:201=creation successful)
@@ -173,7 +175,7 @@ app.post('/geotags', jsonParser, function (req, res) {
     let long = req.body.longitude;
     let name = req.body.name;
     let hashtag = req.body.hashtag;
-    var tag = new GeoTag(lat, long, name, hashtag, global_index++);
+    var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
     inMemory.addTag(tag);
     res.status(201);
     res.json(inMemory.getList());
@@ -251,7 +253,7 @@ if(found == false)
 
 });
 /**Delete mit ID:
- * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ * Prüfen ob Item mit der ID überhaupt im Array vorhanden ist
  *  true: das Item wird gelöscht status:204=No Content
  *  false: status:404, not found zurückgeschickt
  */
