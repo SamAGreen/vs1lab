@@ -201,12 +201,11 @@ $(function () {
         event.preventDefault();
         ajax.onreadystatechange = function (){
         if (ajax.readyState === 4 && ajax.status === 201) {
-            max_page = ajax.responseText.charAt(0);             //schneidet max_page aus der Response
-            current_page = max_page;                            //current_page = max_page beim hinzufuegen weil wir immer auf der
-                                                                //Seite sein wollen wo der Tag hinzugefuegt wurde
+            let response = JSON.parse(ajax.responseText);
+            current_page = max_page = response[0];
+            let array = response[1];
             document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
-            response = JSON.parse(ajax.responseText.slice(1));  //das wirkliche Tag array ist dann ab dem ersten Zeichen bis ende
-            insertArray(response);
+            insertArray(array);
         }}
         var long = document.getElementById("tag_long").value;
         var lat = document.getElementById("tag_lat").value;
@@ -214,7 +213,7 @@ $(function () {
         var hashtag = document.getElementById("tag_hashtag").value;
         document.getElementById("tag_name").value= document.getElementById("tag_hashtag").value = "";
         var tag = new GeoTag(lat, long, name, hashtag);
-        ajax.open("POST", "/Pagination", true); //Jetzt wird auf /Pagination geschickt
+        ajax.open("POST", "/geotags", true);
         ajax.setRequestHeader("Content-Type", "application/json");
         ajax.send(JSON.stringify(tag));
     });
@@ -229,11 +228,12 @@ $(function () {
         event.preventDefault();
         ajax.onreadystatechange = function () {
         if (ajax.readyState === 4 && ajax.status === 200) {
+            let response = JSON.parse(ajax.responseText);
             current_page = 1;                           //bei filtern wird immer auf die erste Seite gesetzt
-            max_page = ajax.responseText.charAt(0);     //max page wird aus der Antwort herausgeschnitten
-            document.getElementById("button_m").textContent = current_page + "/" + max_page; //Buttontext gesetzt
-            var response = JSON.parse(ajax.responseText.slice(1)); //JSON Array aus antwort geschnitten und dann zu Code geparsed
-            insertArray(response);                                  //Array eingesetzt/Map geupdatet
+            max_page = response[0];
+            let array = response[1];
+            document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
+            insertArray(array);
         }}
         var searchterm = document.getElementById("searchterm").value;
         document.getElementById("searchterm").value="";
@@ -244,7 +244,7 @@ $(function () {
         var params = "searchterm=" + searchterm +
             "&latitude=" + document.getElementById("hi_lat").value +
             "&longitude=" + document.getElementById("hi_long").value;
-        ajax.open("GET", "/Pagination?" + params, true);
+        ajax.open("GET", "/geotags?" + params, true);
         ajax.send();
     });
     //Button Left
@@ -255,11 +255,17 @@ $(function () {
             ajax.onreadystatechange = function () {
                 if(ajax.readyState ===4 && ajax.status ===200){
                     var response = JSON.parse(ajax.responseText);
-                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Setzt text von mittleren Button
-                    insertArray(response);
+                    max_page = response[0];
+                    let array = response[1];
+                    console.log(array);
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
+                    insertArray(array);
                 }
             }
-            ajax.open("GET","/Pagination/"+current_page,true);
+            var params = "searchterm=" + "" +
+                "&latitude=" + document.getElementById("hi_lat").value +
+                "&longitude=" + document.getElementById("hi_long").value + "&page="+current_page;
+            ajax.open("GET","/geotags?"+params,true);
             ajax.send();
         }
     });
@@ -271,11 +277,16 @@ $(function () {
             ajax.onreadystatechange = function () {
                 if (ajax.readyState === 4 && ajax.status === 200){
                     var response = JSON.parse(ajax.responseText);
-                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Setzt mittleren Button
-                    insertArray(response);
+                    max_page = response[0];
+                    let array = response[1];
+                    document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
+                    insertArray(array);
                 }
             }
-            ajax.open("GET","/Pagination/"+current_page,true);
+            var params = "searchterm=" + "" +
+                "&latitude=" + document.getElementById("hi_lat").value +
+                "&longitude=" + document.getElementById("hi_long").value + "&page="+current_page;
+            ajax.open("GET","/geotags?"+params,true);
             ajax.send();
         }
     });
@@ -283,14 +294,19 @@ $(function () {
     document.getElementById("button_m").addEventListener("click",function (){
         current_page = current_page ==null ? 1 : current_page;
         current_page = current_page === max_page ? 1 : max_page; //wenn current = max => current = 1, sonst current = max,
-        ajax.onreadystatechange = function () {                  //zum schnellen hin und her springen gedacht
+        ajax.onreadystatechange = function () {
             if (ajax.readyState === 4 && ajax.status === 200){
                 var response = JSON.parse(ajax.responseText);
-                document.getElementById("button_m").textContent = current_page + "/" + max_page;
-                insertArray(response);
+                max_page = response[0];
+                let array = response[1];
+                document.getElementById("button_m").textContent = current_page + "/" + max_page; //Text Button gesetzt
+                insertArray(array);
             }
         }
-        ajax.open("GET","/Pagination/"+current_page,true);
+        var params = "searchterm=" + "" +
+            "&latitude=" + document.getElementById("hi_lat").value +
+            "&longitude=" + document.getElementById("hi_long").value + "&page="+current_page;
+        ajax.open("GET","/geotags?"+params,true);
         ajax.send();
     });
 });

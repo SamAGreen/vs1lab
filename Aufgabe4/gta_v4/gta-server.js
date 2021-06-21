@@ -119,14 +119,15 @@ var inMemory = (function () {
  */
 
 app.get('/', function(req, res) {
-    inMemory.setCurrentPage(1);
+    let list = inMemory.getList();
+    let max = inMemory.getMax(list);
     res.render('gta', {
         lat: undefined,
         long: undefined,
-        page : 1 + "/" + inMemory.getMax(), //speichern page, max, min in DOM ab, damit beim neuladen der Seite
-        max : inMemory.getMax(),            //die richtigen Werte trotzdem vorhanden sind
+        page : 1 + "/" + max, //speichern page, max, min in DOM ab, damit beim neuladen der Seite
+        max : max,            //die richtigen Werte trotzdem vorhanden sind
         min : 1,
-        taglist: inMemory.getRelevantPage(1)
+        taglist: inMemory.getRelevantPage(list,1)
     });
 });
 
