@@ -193,13 +193,12 @@ app.post('/geotags', jsonParser, function (req, res) {
     let name = req.body.name;
     let hashtag = req.body.hashtag;
     var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
-    if(lat >= -90 && lat <=90 && long >=-180 && long <180){
+    if(lat >= -90 && lat <=90 && long >=-180 && long <=180){
         inMemory.addTag(tag);
         var retlist = inMemory.getList();
         var max = inMemory.getMax(retlist);
-        var ret = [max, inMemory.getRelevantPage(retlist,max)];
         res.status(201);
-        res.json(ret);
+        res.json([max, inMemory.getRelevantPage(retlist,max)]);
     }else{
         res.status(400);
     }
