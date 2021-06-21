@@ -37,11 +37,12 @@ app.use(express.static(__dirname + "/public/"));
  * GeoTag Objekte sollen min. alle Felder des 'tag-form' Formulars aufnehmen.
  */
 class GeoTag {
-    constructor(lat,long,name,hashtag) {
+    constructor(lat,long,name,hashtag,id) {
         this.latitude = lat;
         this.longitude = long;
         this.name = name;
         this.hashtag = hashtag;
+        this.identifier = id;
     }
 }
 
@@ -56,11 +57,7 @@ class GeoTag {
  */
 var inMemory = (function () {
     let taglist = [];
-    let page = [];            //Speichert relevanten Tags, damit wir immer nur die Tags auf den Seiten zurueck schicken die wir brauchen
-                            //z.B. nach dem Filtern wollen wir beim Seiten rumklicken weiterhin immer nur die gefilterten Tags haben,
-                            //damit das funktioniert muessen wir diese semi-permanent abspeichern
-    var currentpage = 1;
-    var maxpage = 1;
+    let global_index = 0;
     let itemsperpage = 8;   //kann man aendern wie man will,brauchen wir spaeter zur berechnung von welchen Tags wir zurueck geben
     return {
         findByCoordinate : function (long, lat,userradius){
@@ -96,28 +93,17 @@ var inMemory = (function () {
             else
                 taglist.splice(index,1,replacement);
         },
-        /**hier fangen die Pagination Methoden an:
-         * setPageArray: Setzt unser Seitenarray auf das relevante Array und berechnet dann die MaxPage
-         * setCurrentPage: setzt die Variable currentpage
-         * getRelevantPage: berechnet auf Basis der itemsperpage und einem seiten index welche Elemente aus dem Array
-         *                  zurueck gegeben werden muessen z.B.: itemsperpage = 10, page_index = 2 => high = 20, low = 10
-         *                  es werden item 10 bis (nicht einschliesslich) 20 als Array zurueck gegeben
-         * getMax: gibt Maximale Seitenanzahl zurueck
-         */
-        setPageArray : function (array){
-            page = array;
-            maxpage = page.length<1? 1 : Math.ceil(((page.length) / itemsperpage)); //damit Max-Page nicht 0 wird
+        getIndex : function (){
+            return global_index++;
         },
-        setCurrentPage : function (index){
-            currentpage = index;
-        },
-        getRelevantPage : function (page_index){
+        //Pagination
+        getRelevantPage : function (array,page_index){
             var high = page_index * itemsperpage ;
             var low = high - itemsperpage;
-            return page.slice(low,high);
+            return array.slice(low,high);
         },
-        getMax : function (){
-            return maxpage;
+        getMax : function (array){
+           return array.length<1? 1 : Math.ceil(((array.length) / itemsperpage));
         }
 
     }
@@ -200,28 +186,35 @@ var jsonParser = bodyParser.json();
  * Der Tag wird in unser Array hinzugefügt, es wird als Antwort(mit status:201=creation successful)
  * das aktuelle Array als JSON zurück geschickt
  */
-app.post('/geotags',jsonParser,function (req,res) {
-   let lat = req.body.latitude;
-   let long = req.body.longitude;
-   let name = req.body.name;
-   let hashtag = req.body.hashtag;
-   var tag = new GeoTag(lat,long,name,hashtag);
-   inMemory.addTag(tag);
-   res.status(201);
-   res.json(inMemory.getList());
+app.post('/geotags', jsonParser, function (req, res) {
+    let lat = req.body.latitude;
+    let long = req.body.longitude;
+    let name = req.body.name;
+    let hashtag = req.body.hashtag;
+    var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
+    inMemory.addTag(tag);
+    res.status(201);
+    res.json(inMemory.getList());
 });
 /**Get mit ID:
- * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
+ * Prüfen ob Item unter der ID überhaupt im Array vorhanden ist
  *  true: das Item wird mit status:200 zurückgeschickt
  *  false: status:404, not found zurückgeschickt
  */
-app.get("/geotags/:userID",function (req,res){
+app.get("/geotags/:userID", function (req, res) {
     var list = inMemory.getList();
-    var index = req.params.userID;
-    if(index < list.length && index >= 0){
-        res.status(200);
-        res.json(list[req.params.userID]);
-    }else{
+    var index = req.params.userID.toString();
+    var found = false;
+    list.every(function (tag) {
+        if (index == tag.identifier) {
+            res.status(200);
+            res.json(tag);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    if (found == false) {
         res.sendStatus(404);
     }
 });
@@ -253,31 +246,47 @@ app.get("/geotags",function (req,res){
  *  true: Tag werte werden ausgelesen, erzeugt und ersetzt dann das Element unter der ID status:204=No Content
  *  false: 404 Antwort
  */
-app.put("/geotags/:userID",jsonParser,function (req,res) {
-    var index = req.params.userID;
-    if(index < inMemory.getList().length && index >= 0){
-        let lat = req.body.latitude;
-        let long = req.body.longitude;
-        let name = req.body.name;
-        let hashtag = req.body.hashtag;
-        var tag = new GeoTag(lat,long,name,hashtag);
-        inMemory.deleteTag(index,tag);
-        res.sendStatus(204);
-    }else
-        res.sendStatus(404);
-});
-/**Delete mit ID:
-    * Prüfen ob Item unter dem Index überhaupt im Array vorhanden ist
-*  true: das Item wird gelöscht status:204=No Content
-*  false: status:404, not found zurückgeschickt
-*/
-app.delete("/geotags/:userID",function (req,res){
+app.put("/geotags/:userID", jsonParser, function (req, res) {
     var list = inMemory.getList();
     var index = req.params.userID;
-    if(index < list.length && index >= 0){
-        inMemory.deleteTag(req.params.userID,null);
-        res.sendStatus(204);
-    }else
+    let lat = req.body.latitude;
+    let long = req.body.longitude;
+    let name = req.body.name;
+    let hashtag = req.body.hashtag;
+    var found = false;
+    var newtag = new GeoTag(lat, long, name, hashtag, index);
+    list.every(function (tag, ind) {
+        if (index == tag.identifier) {
+            inMemory.deleteTag(ind, newtag);
+            res.sendStatus(204);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    if(found == false)
+        res.sendStatus(404);
+
+});
+/**Delete mit ID:
+ * Prüfen ob Item mit der ID überhaupt im Array vorhanden ist
+ *  true: das Item wird gelöscht status:204=No Content
+ *  false: status:404, not found zurückgeschickt
+ */
+app.delete("/geotags/:userID", function (req, res) {
+    var list = inMemory.getList();
+    var index = req.params.userID;
+    var found = false;
+    list.every(function (tag,ind){
+        if(index == tag.identifier){
+            inMemory.deleteTag(ind,null);
+            res.sendStatus(204);
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    if(found==false)
         res.sendStatus(404);
 });
 //Ab hier ist Pagination
