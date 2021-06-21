@@ -193,8 +193,11 @@ app.post('/geotags', jsonParser, function (req, res) {
     let hashtag = req.body.hashtag;
     var tag = new GeoTag(lat, long, name, hashtag, inMemory.getIndex());
     inMemory.addTag(tag);
+    var retlist = inMemory.getList();
+    var max = inMemory.getMax(retlist);
+    var ret = [max, inMemory.getRelevantPage(retlist,max)];
     res.status(201);
-    res.json(inMemory.getList());
+    res.json(ret);
 });
 /**Get mit ID:
  * Prüfen ob Item unter der ID überhaupt im Array vorhanden ist
